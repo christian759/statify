@@ -39,13 +39,19 @@ export const useStore = create<AppState>()(
             sidebarOpen: true,
             theme: 'light',
             selectedRowId: null,
+            tableConfig: {
+                sorting: [],
+                columnVisibility: {},
+                columnOrder: [],
+                columnPinning: {},
+            },
 
-            setData: (data) => {
+            setData: (data: Transaction[]) => {
                 const metrics = calculateMetrics(data);
                 set({ data, filteredData: data, metrics, isLoading: false });
             },
 
-            setFilters: (newFilters) => {
+            setFilters: (newFilters: Partial<FilterState>) => {
                 const filters = { ...get().filters, ...newFilters };
                 const { data } = get();
 
@@ -56,11 +62,12 @@ export const useStore = create<AppState>()(
 
                     const matchesStatus = filters.status.length === 0 || filters.status.includes(item.status);
 
-                    const matchesAmount = item.amount >= filters.minAmount && item.amount <= filters.maxAmount;
+                    const matchesAmount = item.amount >= (filters.minAmount || 0) && item.amount <= (filters.maxAmount || 1000000);
 
                     let matchesDate = true;
-                    if (filters.dateRange[0] && filters.dateRange[1]) {
-                        matchesDate = isWithinInterval(parseISO(item.timestamp), {
+                    if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) {
+                        const itemDate = parseISO(item.timestamp);
+                        matchesDate = isWithinInterval(itemDate, {
                             start: filters.dateRange[0],
                             end: filters.dateRange[1]
                         });
@@ -72,8 +79,11 @@ export const useStore = create<AppState>()(
                 set({ filters, filteredData, metrics: calculateMetrics(filteredData) });
             },
 
-            setTheme: (theme) => set({ theme }),
-            toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+            setTheme: (theme) => {
+                set({ theme });
+                document.documentElement.classList.toggle('dark', theme === 'dark');
+            },
+            toggleSidebar: () => set((state: any) => ({ sidebarOpen: !state.sidebarOpen })),
             setSelectedRow: (id) => set({ selectedRowId: id }),
 
             updateTransaction: (id, updates) => {
@@ -82,13 +92,18 @@ export const useStore = create<AppState>()(
                 set({ data: newData });
                 get().setFilters({}); // Re-apply filters
             },
+
+            setTableConfig: (config) => set((state: any) => ({
+                tableConfig: { ...state.tableConfig, ...config }
+            })),
         }),
         {
             name: 'statify-storage',
-            partialize: (state) => ({
+            partialize: (state: any) => ({
                 theme: state.theme,
                 sidebarOpen: state.sidebarOpen,
-                filters: state.filters
+                filters: state.filters,
+                tableConfig: state.tableConfig,
             }),
         }
     )

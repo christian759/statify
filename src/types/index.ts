@@ -1,4 +1,6 @@
-export type TransactionStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+import { SortingState, VisibilityState, ColumnOrderState } from '@tanstack/react-table';
+
+export type TransactionStatus = 'completed' | 'pending' | 'failed' | 'refunded';
 
 export interface Transaction {
     id: string;
@@ -11,7 +13,11 @@ export interface Transaction {
     timestamp: string;
     category: string;
     region: string;
-    metadata: Record<string, any>;
+    metadata: {
+        ip: string;
+        device: 'Desktop' | 'Mobile';
+        browser: 'Chrome' | 'Safari' | 'Firefox' | 'Edge';
+    };
 }
 
 export interface MetricSummary {
@@ -30,14 +36,28 @@ export interface FilterState {
 }
 
 export interface AppState {
+    // Data
     data: Transaction[];
     filteredData: Transaction[];
     metrics: MetricSummary;
     filters: FilterState;
+
+    // UI State
     isLoading: boolean;
     sidebarOpen: boolean;
     theme: 'light' | 'dark';
     selectedRowId: string | null;
+
+    // Table Config State (for persistence)
+    tableConfig: {
+        sorting: SortingState;
+        columnVisibility: VisibilityState;
+        columnOrder: ColumnOrderState;
+        columnPinning: {
+            left?: string[];
+            right?: string[];
+        };
+    };
 
     // Actions
     setData: (data: Transaction[]) => void;
@@ -46,4 +66,5 @@ export interface AppState {
     toggleSidebar: () => void;
     setSelectedRow: (id: string | null) => void;
     updateTransaction: (id: string, updates: Partial<Transaction>) => void;
+    setTableConfig: (config: any) => void;
 }

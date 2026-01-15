@@ -1,4 +1,3 @@
-import React from 'react';
 import { useStore } from '../store/useStore';
 import { BsCurrencyDollar, BsArrowUpRight, BsArrowDownRight, BsPeople, BsBagCheck, BsSpeedometer2 } from 'react-icons/bs';
 import { cn } from '../utils/cn';
