@@ -7,6 +7,7 @@ import { DashboardCharts } from './components/DashboardCharts';
 import { VirtualizedTable } from './components/VirtualizedTable';
 import { DetailDrawer } from './components/DetailDrawer';
 import { DataUpload } from './components/DataUpload';
+import { FilterPanel } from './components/FilterPanel';
 import { generateMockData } from './data/mockData';
 import { cn } from './utils/cn';
 
@@ -63,6 +64,7 @@ const App = () => {
                 </div>
               </div>
 
+              <FilterPanel />
               <MetricCards />
 
               <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
