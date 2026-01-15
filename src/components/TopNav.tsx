@@ -3,7 +3,7 @@ import { cn } from '../utils/cn';
 import { LuSearch, LuSun, LuMoon, LuBell, LuCalendar } from 'react-icons/lu';
 
 export const TopNav = () => {
-    const isSidebarOpen = useStore((state) => state.isSidebarOpen);
+    const sidebarOpen = useStore((state) => state.sidebarOpen);
     const theme = useStore((state) => state.theme);
     const setTheme = useStore((state) => state.setTheme);
 
