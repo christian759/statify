@@ -1,30 +1,41 @@
-import { useStore } from '../store/useStore';
+import { useStore } from '../store';
 import { BsCurrencyDollar, BsArrowUpRight, BsArrowDownRight, BsPeople, BsBagCheck, BsSpeedometer2 } from 'react-icons/bs';
 import { cn } from '../utils/cn';
+import type { IconType } from 'react-icons';
 
-const Card = ({ title, value, trend, icon: Icon, color }: { title: string, value: string, trend?: number, icon: any, color: string }) => (
+interface CardProps {
+    title: string;
+    value: string;
+    trend?: number;
+    icon: IconType;
+    colorClass: string;
+    iconColorClass: string;
+    bgOpacityClass: string;
+}
+
+const Card = ({ title, value, trend, icon: Icon, colorClass, iconColorClass, bgOpacityClass }: CardProps) => (
     <div className="bg-card border border-border p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-        <div className={cn("absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full opacity-10 transition-transform group-hover:scale-125", color)} />
-        <div className="flex items-start justify-between">
+        <div className={cn("absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full opacity-10 transition-transform group-hover:scale-125", colorClass)} />
+        <div className="flex items-start justify-between relative z-10">
             <div>
                 <p className="text-sm font-medium text-muted-foreground">{title}</p>
-                <h3 className="text-2xl font-bold mt-1">{value}</h3>
+                <h3 className="text-2xl font-bold mt-1 tracking-tight">{value}</h3>
                 {trend !== undefined && (
-                    <div className={cn("flex items-center gap-1 mt-2 text-xs font-semibold", trend >= 0 ? "text-emerald-500" : "text-rose-500")}>
-                        {trend >= 0 ? <BsArrowUpRight /> : <BsArrowDownRight />}
-                        <span>{Math.abs(trend)}% from last month</span>
+                    <div className={cn("flex items-center gap-1 mt-2 text-xs font-bold", trend >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                        {trend >= 0 ? <BsArrowUpRight strokeWidth={1} /> : <BsArrowDownRight strokeWidth={1} />}
+                        <span className="uppercase tracking-tighter">{Math.abs(trend)}% vs last month</span>
                     </div>
                 )}
             </div>
-            <div className={cn("p-3 rounded-xl", color.replace('bg-', 'bg-').replace('opacity-10', 'bg-opacity-20'))}>
-                <Icon className={cn("text-xl", color.replace('bg-', 'text-'))} />
+            <div className={cn("p-3 rounded-xl", bgOpacityClass)}>
+                <Icon className={cn("text-xl", iconColorClass)} />
             </div>
         </div>
     </div>
 );
 
 export const MetricCards = () => {
-    const { metrics } = useStore();
+    const metrics = useStore((state) => state.metrics);
 
     const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -39,28 +50,36 @@ export const MetricCards = () => {
                 value={formatter.format(metrics.totalRevenue)}
                 trend={12.5}
                 icon={BsCurrencyDollar}
-                color="bg-primary"
+                colorClass="bg-blue-600"
+                iconColorClass="text-blue-600"
+                bgOpacityClass="bg-blue-600/10"
             />
             <Card
                 title="Active Users"
                 value={metrics.activeUsers.toLocaleString()}
                 trend={5.2}
                 icon={BsPeople}
-                color="bg-blue-500"
+                colorClass="bg-indigo-600"
+                iconColorClass="text-indigo-600"
+                bgOpacityClass="bg-indigo-600/10"
             />
             <Card
                 title="Total Transactions"
                 value={metrics.transactionCount.toLocaleString()}
                 trend={-2.4}
                 icon={BsBagCheck}
-                color="bg-emerald-500"
+                colorClass="bg-emerald-600"
+                iconColorClass="text-emerald-600"
+                bgOpacityClass="bg-emerald-600/10"
             />
             <Card
                 title="Avg. Order Value"
                 value={formatter.format(metrics.avgOrderValue)}
                 trend={8.1}
                 icon={BsSpeedometer2}
-                color="bg-amber-500"
+                colorClass="bg-amber-600"
+                iconColorClass="text-amber-600"
+                bgOpacityClass="bg-amber-600/10"
             />
         </div>
     );

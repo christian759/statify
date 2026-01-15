@@ -1,4 +1,4 @@
-import { SortingState, VisibilityState, ColumnOrderState } from '@tanstack/react-table';
+import type { SortingState, VisibilityState, ColumnOrderState, RowSelectionState } from '@tanstack/react-table';
 
 export type TransactionStatus = 'completed' | 'pending' | 'failed' | 'refunded';
 
@@ -47,6 +47,7 @@ export interface AppState {
     sidebarOpen: boolean;
     theme: 'light' | 'dark';
     selectedRowId: string | null;
+    rowSelection: RowSelectionState;
 
     // Table Config State (for persistence)
     tableConfig: {
@@ -65,6 +66,7 @@ export interface AppState {
     setTheme: (theme: 'light' | 'dark') => void;
     toggleSidebar: () => void;
     setSelectedRow: (id: string | null) => void;
+    setRowSelection: (updater: any) => void;
     updateTransaction: (id: string, updates: Partial<Transaction>) => void;
     setTableConfig: (config: any) => void;
 }

@@ -1,10 +1,10 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { BsCloudArrowUp, BsFileEarmarkSpreadsheet, BsX, BsCheckCircleFill } from 'react-icons/bs';
 import { cn } from '../utils/cn';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
-import { Transaction } from '../types';
+import type { Transaction, TransactionStatus } from '../types';
 
 export const DataUpload = () => {
     const { setData } = useStore();
@@ -12,28 +12,67 @@ export const DataUpload = () => {
     const [status, setStatus] = useState<'idle' | 'uploading' | 'success'>('idle');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const mapDataToTransactions = (raw: any[]): Transaction[] => {
+        return raw.map((item, i) => {
+            // Heuristic-based mapping
+            const amount = parseFloat(item.amount || item.Amount || item.value || item.Price || '0');
+            const userName = item.userName || item.UserName || item.User || item.Customer || item.Name || 'Unknown User';
+            const userEmail = item.userEmail || item.Email || item.contact || `${userName.toLowerCase().replace(' ', '.')}@example.com`;
+            const status = (item.status || item.Status || 'completed').toLowerCase() as TransactionStatus;
+            const category = item.category || item.Category || item.Type || 'Uncategorized';
+            const region = item.region || item.Region || item.Country || 'Global';
+            const timestamp = item.timestamp || item.Date || item.Time || item.CreatedAt || new Date().toISOString();
+
+            return {
+                id: item.id || `up_${Date.now()}_${i}`,
+                userId: item.userId || `u_${i}`,
+                userName,
+                userEmail,
+                amount,
+                currency: item.currency || item.Currency || 'USD',
+                status: ['completed', 'pending', 'failed', 'refunded'].includes(status) ? status : 'completed',
+                timestamp,
+                category,
+                region,
+                metadata: {
+                    ip: item.ip || '0.0.0.0',
+                    device: item.device || 'Desktop',
+                    browser: item.browser || 'Chrome'
+                }
+            } as Transaction;
+        });
+    };
+
     const processFile = (file: File) => {
         setStatus('uploading');
 
         if (file.name.endsWith('.csv')) {
             Papa.parse(file, {
                 complete: (results) => {
-                    // Mapping logic would go here, for now we just log and set mock data as if it worked
-                    console.log('Parsed CSV:', results.data);
-                    setTimeout(() => setStatus('success'), 1500);
+                    const mapped = mapDataToTransactions(results.data as any[]);
+                    console.log('Mapped CSV:', mapped);
+                    setTimeout(() => {
+                        setData(mapped);
+                        setStatus('success');
+                    }, 1000);
                 },
                 header: true,
+                skipEmptyLines: true,
             });
         } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const data = new Uint8Array(e.target?.result as ArrayBuffer);
-                const workbook = XLSX.read(data, { type: 'array' });
+                const dataRaw = new Uint8Array(e.target?.result as ArrayBuffer);
+                const workbook = XLSX.read(dataRaw, { type: 'array' });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
                 const json = XLSX.utils.sheet_to_json(worksheet);
-                console.log('Parsed Excel:', json);
-                setTimeout(() => setStatus('success'), 1500);
+                const mapped = mapDataToTransactions(json);
+                console.log('Mapped Excel:', mapped);
+                setTimeout(() => {
+                    setData(mapped);
+                    setStatus('success');
+                }, 1000);
             };
             reader.readAsArrayBuffer(file);
         }

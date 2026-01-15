@@ -11,7 +11,7 @@ export const TopNav = () => {
         <header
             className={cn(
                 'fixed top-0 right-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md px-6 transition-all duration-300',
-                isSidebarOpen ? 'left-64' : 'left-20'
+                sidebarOpen ? 'left-64' : 'left-20'
             )}
         >
             <div className="flex flex-1 items-center gap-4">

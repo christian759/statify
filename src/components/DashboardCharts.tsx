@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import {
     LineChart,
     Line,
@@ -16,11 +16,11 @@ import {
     AreaChart,
     Area
 } from 'recharts';
-import { useStore } from '../store/useStore';
+import { useStore } from '../store';
 import { format, parseISO } from 'date-fns';
 
 export const DashboardCharts = () => {
-    const { filteredData } = useStore();
+    const filteredData = useStore((state) => state.filteredData);
 
     // Process data for trend chart
     const trendData = useMemo(() => {

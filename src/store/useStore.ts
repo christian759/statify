@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { AppState, Transaction, FilterState, MetricSummary } from '../types';
+import type { AppState, Transaction, FilterState, MetricSummary } from '../types';
 import { isWithinInterval, parseISO } from 'date-fns';
 
 const calculateMetrics = (data: Transaction[]): MetricSummary => {
@@ -39,6 +39,7 @@ export const useStore = create<AppState>()(
             sidebarOpen: true,
             theme: 'light',
             selectedRowId: null,
+            rowSelection: {},
             tableConfig: {
                 sorting: [],
                 columnVisibility: {},
@@ -55,7 +56,7 @@ export const useStore = create<AppState>()(
                 const filters = { ...get().filters, ...newFilters };
                 const { data } = get();
 
-                const filteredData = data.filter(item => {
+                const filteredData = data.filter((item: Transaction) => {
                     const matchesSearch = !filters.search ||
                         item.userName.toLowerCase().includes(filters.search.toLowerCase()) ||
                         item.id.toLowerCase().includes(filters.search.toLowerCase());
@@ -79,21 +80,26 @@ export const useStore = create<AppState>()(
                 set({ filters, filteredData, metrics: calculateMetrics(filteredData) });
             },
 
-            setTheme: (theme) => {
+            setTheme: (theme: 'light' | 'dark') => {
                 set({ theme });
-                document.documentElement.classList.toggle('dark', theme === 'dark');
+                if (typeof document !== 'undefined') {
+                    document.documentElement.classList.toggle('dark', theme === 'dark');
+                }
             },
-            toggleSidebar: () => set((state: any) => ({ sidebarOpen: !state.sidebarOpen })),
-            setSelectedRow: (id) => set({ selectedRowId: id }),
+            toggleSidebar: () => set((state: AppState) => ({ sidebarOpen: !state.sidebarOpen })),
+            setSelectedRow: (id: string | null) => set({ selectedRowId: id }),
+            setRowSelection: (updater: any) => set((state: AppState) => ({
+                rowSelection: typeof updater === 'function' ? updater(state.rowSelection) : updater
+            })),
 
-            updateTransaction: (id, updates) => {
+            updateTransaction: (id: string, updates: Partial<Transaction>) => {
                 const { data } = get();
-                const newData = data.map(item => item.id === id ? { ...item, ...updates } : item);
+                const newData = data.map((item: Transaction) => item.id === id ? { ...item, ...updates } : item);
                 set({ data: newData });
                 get().setFilters({}); // Re-apply filters
             },
 
-            setTableConfig: (config) => set((state: any) => ({
+            setTableConfig: (config: any) => set((state: AppState) => ({
                 tableConfig: { ...state.tableConfig, ...config }
             })),
         }),
@@ -104,6 +110,7 @@ export const useStore = create<AppState>()(
                 sidebarOpen: state.sidebarOpen,
                 filters: state.filters,
                 tableConfig: state.tableConfig,
+                rowSelection: state.rowSelection,
             }),
         }
     )
