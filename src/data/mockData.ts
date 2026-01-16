@@ -1,4 +1,4 @@
-import { Transaction, TransactionStatus } from '../types';
+import type { Transaction, TransactionStatus } from '../types';
 import { subDays, formatISO } from 'date-fns';
 
 const NAMES = ['Alice Smith', 'Bob Johnson', 'Charlie Brown', 'David Wilson', 'Eve Davis', 'Frank Miller', 'Grace Hopper', 'Hank Pym', 'Ivy League', 'Jack Sparrow'];
