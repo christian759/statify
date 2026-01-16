@@ -43,7 +43,6 @@ export const TopNav = () => {
 
                 <button className="p-2 relative text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl transition-colors">
                     <LuBell size={20} />
-                    <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-950" />
                 </button>
             </div>
         </header>

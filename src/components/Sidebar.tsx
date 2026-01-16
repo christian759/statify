@@ -9,7 +9,8 @@ import {
     LuChevronLeft,
     LuChevronRight,
     LuActivity,
-    LuFileUp
+    LuFileUp,
+    LuBell
 } from 'react-icons/lu';
 
 const menuItems = [
@@ -70,21 +71,6 @@ export const Sidebar = () => {
                         );
                     })}
                 </nav>
-
-                <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-                    <div className={cn(
-                        "flex items-center gap-3",
-                        !sidebarOpen && "justify-center"
-                    )}>
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 shrink-0" />
-                        {sidebarOpen && (
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-sm font-semibold truncate dark:text-white">John Doe</span>
-                                <span className="text-xs text-slate-500 truncate">Admin Account</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
             </div>
         </aside>
     );

@@ -15,20 +15,21 @@ interface CardProps {
 }
 
 const Card = ({ title, value, trend, icon: Icon, colorClass, iconColorClass, bgOpacityClass }: CardProps) => (
-    <div className="bg-card border border-border p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-        <div className={cn("absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full opacity-10 transition-transform group-hover:scale-125", colorClass)} />
+    <div className="glass-card p-6 rounded-2xl relative overflow-hidden group animate-in">
+        <div className={cn("absolute top-0 right-0 w-32 h-32 -mr-12 -mt-12 rounded-full opacity-[0.03] transition-transform duration-500 group-hover:scale-150 group-hover:opacity-[0.08]", colorClass)} />
         <div className="flex items-start justify-between relative z-10">
-            <div>
-                <p className="text-sm font-medium text-muted-foreground">{title}</p>
-                <h3 className="text-2xl font-bold mt-1 tracking-tight">{value}</h3>
+            <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">{title}</p>
+                <h3 className="text-3xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">{value}</h3>
                 {trend !== undefined && (
-                    <div className={cn("flex items-center gap-1 mt-2 text-xs font-bold", trend >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                    <div className={cn("flex items-center gap-1.5 mt-2 text-[11px] font-bold px-2 py-0.5 rounded-full w-fit",
+                        trend >= 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500")}>
                         {trend >= 0 ? <BsArrowUpRight strokeWidth={1} /> : <BsArrowDownRight strokeWidth={1} />}
                         <span className="uppercase tracking-tighter">{Math.abs(trend)}% vs last month</span>
                     </div>
                 )}
             </div>
-            <div className={cn("p-3 rounded-xl", bgOpacityClass)}>
+            <div className={cn("p-3 rounded-xl glass shadow-lg shadow-black/5", bgOpacityClass)}>
                 <Icon className={cn("text-xl", iconColorClass)} />
             </div>
         </div>
