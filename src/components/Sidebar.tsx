@@ -28,6 +28,8 @@ interface SidebarProps {
 export const Sidebar = ({ mobileMode }: SidebarProps) => {
     const sidebarOpen = useStore((state: AppState) => state.sidebarOpen);
     const toggleSidebar = useStore((state: AppState) => state.toggleSidebar);
+    const currentView = useStore((state: AppState) => state.currentView);
+    const setView = useStore((state: AppState) => state.setView);
 
     const isCollapsed = !mobileMode && !sidebarOpen;
 
@@ -59,16 +61,20 @@ export const Sidebar = ({ mobileMode }: SidebarProps) => {
                 <nav className="flex-1 px-3 py-6 space-y-1.5">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
+                        const isActive = currentView === item.id;
                         return (
                             <button
                                 key={item.id}
+                                onClick={() => setView(item.id)}
                                 className={cn(
-                                    'flex items-center w-full px-4 py-3 text-sm font-semibold rounded-2xl transition-all group relative',
-                                    'hover:bg-primary/10 hover:text-primary',
-                                    'text-slate-500 hover:scale-[1.02] active:scale-95'
+                                    'flex items-center w-full px-4 py-3 text-sm font-semibold rounded-2xl transition-all group relative border border-transparent',
+                                    isActive
+                                        ? 'bg-primary/10 text-primary border-primary/10 shadow-[inset_0_0_20px_rgba(99,102,241,0.05)]'
+                                        : 'text-slate-500 hover:bg-white/[0.03] hover:text-slate-700 dark:hover:text-slate-300 hover:scale-[1.02]',
+                                    'active:scale-95'
                                 )}
                             >
-                                <Icon size={20} className="shrink-0" />
+                                <Icon size={20} className={cn("shrink-0 transition-transform", isActive ? "scale-110" : "group-hover:scale-110")} />
                                 {(!isCollapsed || mobileMode) && <span className="ml-4 truncate">{item.label}</span>}
                                 {isCollapsed && !mobileMode && (
                                     <div className="absolute left-full ml-4 px-3 py-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-50 shadow-2xl pointer-events-none">

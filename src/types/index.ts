@@ -48,6 +48,7 @@ export interface AppState {
     theme: 'light' | 'dark';
     selectedRowId: string | null;
     rowSelection: RowSelectionState;
+    currentView: string;
 
     // Table Config State (for persistence)
     tableConfig: {
@@ -69,4 +70,5 @@ export interface AppState {
     setRowSelection: (updater: any) => void;
     updateTransaction: (id: string, updates: Partial<Transaction>) => void;
     setTableConfig: (config: any) => void;
+    setView: (view: string) => void;
 }

@@ -46,6 +46,7 @@ export const useStore = create<AppState>()(
                 columnOrder: [],
                 columnPinning: {},
             },
+            currentView: 'dashboard',
 
             setData: (data: Transaction[]) => {
                 const metrics = calculateMetrics(data);
@@ -102,6 +103,7 @@ export const useStore = create<AppState>()(
             setTableConfig: (config: any) => set((state: AppState) => ({
                 tableConfig: { ...state.tableConfig, ...config }
             })),
+            setView: (view: string) => set({ currentView: view }),
         }),
         {
             name: 'statify-storage',
@@ -111,6 +113,7 @@ export const useStore = create<AppState>()(
                 filters: state.filters,
                 tableConfig: state.tableConfig,
                 rowSelection: state.rowSelection,
+                currentView: state.currentView,
             }),
         }
     )
