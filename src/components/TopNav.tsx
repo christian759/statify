@@ -1,11 +1,12 @@
-import { useStore } from '../store';
+import { useStore } from '../store/useStore';
+import type { AppState } from '../types';
 import { cn } from '../utils/cn';
 import { LuSearch, LuSun, LuMoon, LuBell, LuCalendar } from 'react-icons/lu';
 
 export const TopNav = () => {
-    const sidebarOpen = useStore((state) => state.sidebarOpen);
-    const theme = useStore((state) => state.theme);
-    const setTheme = useStore((state) => state.setTheme);
+    const sidebarOpen = useStore((state: AppState) => state.sidebarOpen);
+    const theme = useStore((state: AppState) => state.theme);
+    const setTheme = useStore((state: AppState) => state.setTheme);
 
     return (
         <header
@@ -31,7 +32,7 @@ export const TopNav = () => {
                     <span>Last 30 Days</span>
                 </button>
 
-                <div className="w-px h-6 mx-2 bg-slate-200 dark:border-slate-800" />
+                <div className="w-px h-6 mx-2 bg-slate-200 dark:bg-slate-800" />
 
                 <button
                     onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}

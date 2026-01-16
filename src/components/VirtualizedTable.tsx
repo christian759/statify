@@ -204,8 +204,8 @@ export const VirtualizedTable = () => {
                                             key={header.id}
                                             style={{
                                                 width: header.getSize(),
-                                                left: isPinned === 'left' ? header.getStart('left') : undefined,
-                                                right: isPinned === 'right' ? header.getAfter('right') : undefined,
+                                                left: isPinned === 'left' ? header.column.getStart('left') : undefined,
+                                                right: isPinned === 'right' ? header.column.getAfter('right') : undefined,
                                             }}
                                             className={cn(
                                                 "px-4 py-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest cursor-pointer hover:bg-secondary transition-colors relative group",

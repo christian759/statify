@@ -1,4 +1,5 @@
-import { useStore } from '../store';
+import { useStore } from '../store/useStore';
+import type { AppState } from '../types';
 import { cn } from '../utils/cn';
 import {
     LuLayoutDashboard,
@@ -21,8 +22,8 @@ const menuItems = [
 ];
 
 export const Sidebar = () => {
-    const sidebarOpen = useStore((state) => state.sidebarOpen);
-    const toggleSidebar = useStore((state) => state.toggleSidebar);
+    const sidebarOpen = useStore((state: AppState) => state.sidebarOpen);
+    const toggleSidebar = useStore((state: AppState) => state.toggleSidebar);
 
     return (
         <aside
@@ -47,24 +48,27 @@ export const Sidebar = () => {
                 </div>
 
                 <nav className="flex-1 px-3 py-4 space-y-2">
-                    {menuItems.map((item) => (
-                        <button
-                            key={item.id}
-                            className={cn(
-                                'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl transition-all group',
-                                'hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400',
-                                'text-slate-600 dark:text-slate-400'
-                            )}
-                        >
-                            <item.icon size={22} className="shrink-0" />
-                            {sidebarOpen && <span className="ml-3 truncate">{item.label}</span>}
-                            {!sidebarOpen && (
-                                <div className="absolute left-full ml-2 px-2 py-1 bg-slate-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
-                                    {item.label}
-                                </div>
-                            )}
-                        </button>
-                    ))}
+                    {menuItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                            <button
+                                key={item.id}
+                                className={cn(
+                                    'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl transition-all group relative',
+                                    'hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400',
+                                    'text-slate-600 dark:text-slate-400'
+                                )}
+                            >
+                                <Icon size={22} className="shrink-0" />
+                                {sidebarOpen && <span className="ml-3 truncate">{item.label}</span>}
+                                {!sidebarOpen && (
+                                    <div className="absolute left-full ml-2 px-2 py-1 bg-slate-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                                        {item.label}
+                                    </div>
+                                )}
+                            </button>
+                        );
+                    })}
                 </nav>
 
                 <div className="p-4 border-t border-slate-200 dark:border-slate-800">

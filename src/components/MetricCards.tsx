@@ -1,4 +1,5 @@
-import { useStore } from '../store';
+import { useStore } from '../store/useStore';
+import type { AppState } from '../types';
 import { BsCurrencyDollar, BsArrowUpRight, BsArrowDownRight, BsPeople, BsBagCheck, BsSpeedometer2 } from 'react-icons/bs';
 import { cn } from '../utils/cn';
 import type { IconType } from 'react-icons';
@@ -35,7 +36,7 @@ const Card = ({ title, value, trend, icon: Icon, colorClass, iconColorClass, bgO
 );
 
 export const MetricCards = () => {
-    const metrics = useStore((state) => state.metrics);
+    const metrics = useStore((state: AppState) => state.metrics);
 
     const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
