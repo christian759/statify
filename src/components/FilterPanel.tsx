@@ -6,7 +6,7 @@ import type { TransactionStatus } from '../types';
 const STATUS_OPTIONS: TransactionStatus[] = ['completed', 'pending', 'failed', 'refunded'];
 
 export const FilterPanel = () => {
-    const { filters, setFilters } = useStore();
+    const { filters, setFilters, filteredData } = useStore();
 
     const toggleStatus = (status: TransactionStatus) => {
         const current = filters.status;
@@ -27,82 +27,79 @@ export const FilterPanel = () => {
     };
 
     return (
-        <div className="space-y-4 mb-8 p-6 bg-card border border-border rounded-2xl shadow-sm">
-            <div className="flex flex-wrap items-center gap-6">
+        <div className="space-y-6 mb-8 p-8 glass-card rounded-3xl animate-in">
+            <div className="flex flex-col xl:flex-row xl:items-center gap-8">
                 {/* Search */}
-                <div className="flex-1 min-w-[300px]">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Quick Search</p>
+                <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-3 px-1">Intelligent Search</p>
                     <div className="relative group">
-                        <BsFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-all group-focus-within:text-primary group-focus-within:scale-110">
+                            <BsFilter size={20} />
+                        </div>
                         <input
                             type="text"
-                            placeholder="Find by ID, user, or category..."
+                            placeholder="Scan by ID, user, or category..."
                             value={filters.search}
                             onChange={(e) => setFilters({ search: e.target.value })}
-                            className="w-full bg-secondary/30 border border-border/50 rounded-xl pl-10 pr-4 py-2 text-sm outline-none focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                            className="w-full bg-white/[0.03] dark:bg-slate-900/50 border border-white/5 rounded-2xl pl-12 pr-4 py-3.5 text-sm outline-none focus:bg-white/5 focus:ring-4 focus:ring-primary/10 transition-all font-semibold placeholder:text-muted-foreground/30 shadow-inner"
                         />
                     </div>
                 </div>
 
                 {/* Status Chips */}
-                <div className="flex-none">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Transaction Status</p>
-                    <div className="flex items-center gap-2">
+                <div className="flex-none min-w-0 overflow-x-auto scrollbar-none">
+                    <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-3 px-1">Network Status Filter</p>
+                    <div className="flex items-center gap-2.5 pb-2 xl:pb-0">
                         {STATUS_OPTIONS.map(status => (
                             <button
                                 key={status}
                                 onClick={() => toggleStatus(status as any)}
                                 className={cn(
-                                    "px-4 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-2",
+                                    "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all whitespace-nowrap active:scale-95",
                                     filters.status.includes(status as any)
-                                        ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
-                                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                                        ? "bg-primary border-primary/20 text-white shadow-xl shadow-primary/20 scale-105"
+                                        : "glass text-muted-foreground/60 hover:border-primary/30 hover:text-foreground"
                                 )}
                             >
-                                <span className="capitalize">{status}</span>
-                                {filters.status.includes(status as any) && <BsCheck size={16} />}
+                                {status}
+                                {filters.status.includes(status as any) && <BsCheck size={16} className="ml-2 inline-block" />}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                {/* Range / Reset */}
-                <div className="flex items-end gap-4 ml-auto">
-                    <div className="hidden xl:block">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1 text-right">Active Filters</p>
-                        <div className="flex gap-2">
-                            {(filters.status.length > 0 || filters.search) ? (
-                                <button
-                                    onClick={clearAll}
-                                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-rose-500 bg-rose-500/10 rounded-xl hover:bg-rose-500/20 transition-all active:scale-95"
-                                >
-                                    <BsX size={18} />
-                                    Clear Filters
-                                </button>
-                            ) : (
-                                <div className="px-3 py-2 text-xs font-bold text-muted-foreground bg-secondary/30 rounded-xl opacity-50 cursor-not-allowed">
-                                    No Active Filters
-                                </div>
-                            )}
+                {/* Reset */}
+                <div className="flex xl:items-end gap-4 xl:ml-auto">
+                    {(filters.status.length > 0 || filters.search) ? (
+                        <button
+                            onClick={clearAll}
+                            className="flex items-center gap-2 px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.1em] text-rose-500 bg-rose-500/10 rounded-2xl border border-rose-500/20 hover:bg-rose-500/20 transition-all active:scale-95 animate-in zoom-in"
+                        >
+                            <BsX size={20} />
+                            Reset Engine
+                        </button>
+                    ) : (
+                        <div className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/30 glass rounded-2xl border-white/5 opacity-50 cursor-not-allowed">
+                            Default state
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 
-            {/* Slider Placeholder / Advanced Info */}
-            <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        Real-time synchronization active
+            {/* Footer */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between pt-6 border-t border-white/5 gap-4">
+                <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2.5 text-[11px] font-bold text-emerald-500/80">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
+                        Live Sync: Active
                     </div>
-                    <div className="h-4 w-px bg-border" />
-                    <div className="text-xs text-muted-foreground font-mono">
-                        Filtered: <span className="text-foreground font-bold">{useStore.getState().filteredData.length.toLocaleString()}</span> records
+                    <div className="h-4 w-px bg-white/10 hidden md:block" />
+                    <div className="text-[11px] text-muted-foreground/60 font-mono">
+                        Indexing: <span className="text-foreground font-black">{filteredData.length.toLocaleString()}</span> segments
                     </div>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] font-black italic uppercase tracking-widest text-muted-foreground/30">
-                    Statify Query Engine v4
+                <div className="flex items-center gap-1.5 text-[9px] font-black italic uppercase tracking-[0.3em] text-muted-foreground/20">
+                    Neural Index v4.2.0-stable
                 </div>
             </div>
         </div>

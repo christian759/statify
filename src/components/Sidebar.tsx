@@ -9,8 +9,7 @@ import {
     LuChevronLeft,
     LuChevronRight,
     LuActivity,
-    LuFileUp,
-    LuBell
+    LuFileUp
 } from 'react-icons/lu';
 
 const menuItems = [
@@ -22,48 +21,57 @@ const menuItems = [
     { icon: LuSettings, label: 'Settings', id: 'settings' },
 ];
 
-export const Sidebar = () => {
+interface SidebarProps {
+    mobileMode?: boolean;
+}
+
+export const Sidebar = ({ mobileMode }: SidebarProps) => {
     const sidebarOpen = useStore((state: AppState) => state.sidebarOpen);
     const toggleSidebar = useStore((state: AppState) => state.toggleSidebar);
+
+    const isCollapsed = !mobileMode && !sidebarOpen;
 
     return (
         <aside
             className={cn(
-                'fixed left-0 top-0 z-40 h-screen transition-all duration-300 ease-in-out border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950',
-                sidebarOpen ? 'w-64' : 'w-20'
+                'z-40 h-screen transition-all duration-300 ease-in-out border-r border-white/5 bg-white dark:bg-slate-950/50 backdrop-blur-xl',
+                mobileMode ? 'w-full relative h-full bg-transparent border-none' : 'fixed left-0 top-0',
+                isCollapsed ? 'w-20' : 'w-64'
             )}
         >
             <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200 dark:border-slate-800">
-                    {sidebarOpen && (
-                        <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <div className="flex items-center justify-between h-16 px-4 border-b border-white/5">
+                    {(!isCollapsed || mobileMode) && (
+                        <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-2">
                             Statify
                         </span>
                     )}
-                    <button
-                        onClick={toggleSidebar}
-                        className="p-2 ml-auto rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
-                    >
-                        {sidebarOpen ? <LuChevronLeft size={20} /> : <LuChevronRight size={20} />}
-                    </button>
+                    {!mobileMode && (
+                        <button
+                            onClick={toggleSidebar}
+                            className="p-2 ml-auto rounded-xl hover:bg-white/10 transition-colors"
+                        >
+                            {sidebarOpen ? <LuChevronLeft size={20} /> : <LuChevronRight size={20} />}
+                        </button>
+                    )}
                 </div>
 
-                <nav className="flex-1 px-3 py-4 space-y-2">
+                <nav className="flex-1 px-3 py-6 space-y-1.5">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         return (
                             <button
                                 key={item.id}
                                 className={cn(
-                                    'flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-xl transition-all group relative',
-                                    'hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400',
-                                    'text-slate-600 dark:text-slate-400'
+                                    'flex items-center w-full px-4 py-3 text-sm font-semibold rounded-2xl transition-all group relative',
+                                    'hover:bg-primary/10 hover:text-primary',
+                                    'text-slate-500 hover:scale-[1.02] active:scale-95'
                                 )}
                             >
-                                <Icon size={22} className="shrink-0" />
-                                {sidebarOpen && <span className="ml-3 truncate">{item.label}</span>}
-                                {!sidebarOpen && (
-                                    <div className="absolute left-full ml-2 px-2 py-1 bg-slate-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                                <Icon size={20} className="shrink-0" />
+                                {(!isCollapsed || mobileMode) && <span className="ml-4 truncate">{item.label}</span>}
+                                {isCollapsed && !mobileMode && (
+                                    <div className="absolute left-full ml-4 px-3 py-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-50 shadow-2xl pointer-events-none">
                                         {item.label}
                                     </div>
                                 )}
@@ -71,6 +79,13 @@ export const Sidebar = () => {
                         );
                     })}
                 </nav>
+
+                <div className="p-4 mt-auto">
+                    <div className="p-4 rounded-3xl premium-gradient text-white shadow-lg shadow-indigo-500/20 text-center">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">System Status</p>
+                        <p className="text-sm font-bold mt-1">Operational</p>
+                    </div>
+                </div>
             </div>
         </aside>
     );
