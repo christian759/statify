@@ -19,8 +19,8 @@ const Card = ({ title, value, trend, icon: Icon, colorClass, iconColorClass, bgO
         <div className={cn("absolute top-0 right-0 w-32 h-32 -mr-12 -mt-12 rounded-full opacity-[0.03] transition-transform duration-500 group-hover:scale-150 group-hover:opacity-[0.08]", colorClass)} />
         <div className="flex items-start justify-between relative z-10">
             <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">{title}</p>
-                <h3 className="text-3xl font-bold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">{value}</h3>
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400">{title}</p>
+                <h3 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">{value}</h3>
                 {trend !== undefined && (
                     <div className={cn("flex items-center gap-1.5 mt-2 text-[11px] font-bold px-2 py-0.5 rounded-full w-fit",
                         trend >= 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500")}>

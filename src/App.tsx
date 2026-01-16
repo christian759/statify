@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore } from './store/useStore';
 import { Sidebar } from './components/Sidebar';
-import { TopNav } from './components/TopNav';
 import { MetricCards } from './components/MetricCards';
 import { DashboardCharts } from './components/DashboardCharts';
 import { VirtualizedTable } from './components/VirtualizedTable';
@@ -13,7 +12,7 @@ import { cn } from './utils/cn';
 import { LuMenu, LuX, LuDownload, LuPlus, LuLayoutDashboard } from 'react-icons/lu';
 
 const App = () => {
-  const { sidebarOpen, toggleSidebar, theme, setData, isLoading, currentView } = useStore();
+  const { sidebarOpen, theme, setData, isLoading, currentView } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -177,16 +176,11 @@ const App = () => {
         "transition-all duration-300 min-h-screen flex flex-col relative z-10",
         sidebarOpen ? "lg:pl-64" : "lg:pl-20"
       )}>
-        <TopNav />
-
-        {/* Mobile Header */}
-        <div className="lg:hidden flex items-center justify-between h-16 px-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent border-none">
-            Statify
-          </span>
+        {/* Mobile Menu Trigger - Floating if no top bar */}
+        <div className="lg:hidden fixed top-4 right-4 z-50">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors border-none outline-none"
+            className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl text-slate-600 dark:text-slate-300 transition-all active:scale-95"
           >
             {mobileMenuOpen ? <LuX size={24} /> : <LuMenu size={24} />}
           </button>

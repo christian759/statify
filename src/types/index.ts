@@ -15,8 +15,8 @@ export interface Transaction {
     region: string;
     metadata: {
         ip: string;
-        device: 'Desktop' | 'Mobile';
-        browser: 'Chrome' | 'Safari' | 'Firefox' | 'Edge';
+        device: string;
+        browser: string;
     };
 }
 

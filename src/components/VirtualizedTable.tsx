@@ -32,7 +32,7 @@ export const VirtualizedTable = () => {
                         type="checkbox"
                         checked={table.getIsAllRowsSelected()}
                         onChange={table.getToggleAllRowsSelectedHandler()}
-                        className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500"
+                        className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-primary focus:ring-primary"
                     />
                 ),
                 cell: ({ row }) => (
@@ -40,7 +40,7 @@ export const VirtualizedTable = () => {
                         type="checkbox"
                         checked={row.getIsSelected()}
                         onChange={row.getToggleSelectedHandler()}
-                        className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-blue-600 focus:ring-blue-500"
+                        className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-primary focus:ring-primary"
                     />
                 ),
                 size: 50,
@@ -258,8 +258,8 @@ export const VirtualizedTable = () => {
                                     key={row.id}
                                     onClick={() => setSelectedRow(row.original.id)}
                                     className={cn(
-                                        "absolute w-full flex items-center border-b border-white/5 transition-all hover:bg-white/[0.03] cursor-pointer group/row",
-                                        selectedRowId === row.original.id && "bg-primary/5 hover:bg-primary/10 shadow-[inset_4px_0_0_0_#6366f1]",
+                                        "absolute w-full flex items-center border-b border-white/5 transition-all hover:bg-slate-100/50 dark:hover:bg-white/[0.02] cursor-pointer group/row",
+                                        selectedRowId === row.original.id && "bg-primary/5 hover:bg-primary/10 shadow-[inset_4px_0_0_0_var(--color-primary)]",
                                         row.getIsSelected() && "bg-primary/[0.02]"
                                     )}
                                     style={{

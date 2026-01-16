@@ -9,7 +9,9 @@ import {
     LuChevronLeft,
     LuChevronRight,
     LuActivity,
-    LuFileUp
+    LuFileUp,
+    LuSun,
+    LuMoon
 } from 'react-icons/lu';
 
 const menuItems = [
@@ -30,6 +32,8 @@ export const Sidebar = ({ mobileMode }: SidebarProps) => {
     const toggleSidebar = useStore((state: AppState) => state.toggleSidebar);
     const currentView = useStore((state: AppState) => state.currentView);
     const setView = useStore((state: AppState) => state.setView);
+    const theme = useStore((state: AppState) => state.theme);
+    const setTheme = useStore((state: AppState) => state.setTheme);
 
     const isCollapsed = !mobileMode && !sidebarOpen;
 
@@ -86,11 +90,30 @@ export const Sidebar = ({ mobileMode }: SidebarProps) => {
                     })}
                 </nav>
 
-                <div className="p-4 mt-auto">
-                    <div className="p-4 rounded-3xl premium-gradient text-white shadow-lg shadow-indigo-500/20 text-center">
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">System Status</p>
-                        <p className="text-sm font-bold mt-1">Operational</p>
-                    </div>
+                <div className="p-4 mt-auto space-y-4">
+                    <button
+                        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                        className={cn(
+                            "flex items-center w-full px-4 py-3 text-sm font-semibold rounded-2xl transition-all border border-transparent",
+                            "text-slate-500 hover:bg-white/[0.03] hover:text-slate-700 dark:hover:text-slate-300",
+                            isCollapsed && !mobileMode ? "justify-center" : ""
+                        )}
+                        title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+                    >
+                        {theme === 'light' ? <LuMoon size={20} /> : <LuSun size={20} />}
+                        {(!isCollapsed || mobileMode) && <span className="ml-4">Theme</span>}
+                    </button>
+
+                    {!isCollapsed || mobileMode ? (
+                        <div className="p-4 rounded-3xl bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 text-center">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">System Status</p>
+                            <p className="text-sm font-bold mt-1 text-slate-600 dark:text-slate-300">Operational</p>
+                        </div>
+                    ) : (
+                        <div className="flex justify-center">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        </div>
+                    )}
                 </div>
             </div>
         </aside>

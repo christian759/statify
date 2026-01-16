@@ -31,7 +31,7 @@ export const FilterPanel = () => {
             <div className="flex flex-col xl:flex-row xl:items-center gap-8">
                 {/* Search */}
                 <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-3 px-1">Intelligent Search</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3 px-1">Search Database</p>
                     <div className="relative group">
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-all group-focus-within:text-primary group-focus-within:scale-110">
                             <BsFilter size={20} />
@@ -48,7 +48,7 @@ export const FilterPanel = () => {
 
                 {/* Status Chips */}
                 <div className="flex-none min-w-0 overflow-x-auto scrollbar-none">
-                    <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-3 px-1">Network Status Filter</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3 px-1">Transaction Status</p>
                     <div className="flex items-center gap-2.5 pb-2 xl:pb-0">
                         {STATUS_OPTIONS.map(status => (
                             <button
@@ -57,8 +57,8 @@ export const FilterPanel = () => {
                                 className={cn(
                                     "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all whitespace-nowrap active:scale-95",
                                     filters.status.includes(status as any)
-                                        ? "bg-primary border-primary/20 text-white shadow-xl shadow-primary/20 scale-105"
-                                        : "glass text-muted-foreground/60 hover:border-primary/30 hover:text-foreground"
+                                        ? "bg-primary border-primary/20 text-white shadow-sm scale-100"
+                                        : "bg-slate-100 dark:bg-slate-900 text-slate-500 hover:border-primary/30 hover:text-foreground"
                                 )}
                             >
                                 {status}
@@ -73,10 +73,10 @@ export const FilterPanel = () => {
                     {(filters.status.length > 0 || filters.search) ? (
                         <button
                             onClick={clearAll}
-                            className="flex items-center gap-2 px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.1em] text-rose-500 bg-rose-500/10 rounded-2xl border border-rose-500/20 hover:bg-rose-500/20 transition-all active:scale-95 animate-in zoom-in"
+                            className="flex items-center gap-2 px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-rose-600 bg-rose-50 dark:bg-rose-500/10 rounded-2xl border border-rose-200 dark:border-rose-500/20 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all active:scale-95 animate-in zoom-in"
                         >
                             <BsX size={20} />
-                            Reset Engine
+                            Reset Filters
                         </button>
                     ) : (
                         <div className="px-6 py-3.5 text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/30 glass rounded-2xl border-white/5 opacity-50 cursor-not-allowed">
@@ -98,8 +98,8 @@ export const FilterPanel = () => {
                         Indexing: <span className="text-foreground font-black">{filteredData.length.toLocaleString()}</span> segments
                     </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-[9px] font-black italic uppercase tracking-[0.3em] text-muted-foreground/20">
-                    Neural Index v4.2.0-stable
+                <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                    Statify Analytics v1.0.0
                 </div>
             </div>
         </div>
