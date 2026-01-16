@@ -118,7 +118,7 @@ export const DetailDrawer = () => {
                                         <option value="refunded">Refunded</option>
                                     </select>
                                 ) : (
-                                    <div className="bg-white/[0.03] p-4 rounded-2xl border border-white/5 flex items-center justify-between">
+                                    <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-2xl border border-white/5 flex items-center justify-between">
                                         <span className={cn(
                                             "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border",
                                             transaction.status === 'completed'
@@ -127,7 +127,6 @@ export const DetailDrawer = () => {
                                         )}>
                                             {transaction.status}
                                         </span>
-                                        <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-tighter">Verified Hash v4.1</span>
                                     </div>
                                 )}
                             </div>
@@ -157,7 +156,7 @@ export const DetailDrawer = () => {
                         <div className="mt-10 space-y-6">
                             <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 text-center flex items-center gap-4">
                                 <div className="h-px flex-1 bg-white/5" />
-                                Entity Intelligence
+                                Account Information
                                 <div className="h-px flex-1 bg-white/5" />
                             </h3>
                             <div className="grid gap-4">
@@ -168,7 +167,6 @@ export const DetailDrawer = () => {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-lg font-black truncate tracking-tight">{transaction.userName}</p>
-                                            <p className="text-[10px] text-muted-foreground/60 uppercase font-black tracking-widest mt-0.5">Primary Accountant</p>
                                         </div>
                                     </div>
                                 </div>
@@ -179,7 +177,6 @@ export const DetailDrawer = () => {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-md font-bold truncate opacity-80">{transaction.userEmail}</p>
-                                            <p className="text-[10px] text-muted-foreground/60 uppercase font-black tracking-widest mt-0.5">Secure Gateway Relay</p>
                                         </div>
                                     </div>
                                 </div>
@@ -189,29 +186,14 @@ export const DetailDrawer = () => {
                 )}
 
                 {activeTab === 'activity' && (
-                    <div className="space-y-8 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/5 animate-in fade-in slide-in-from-right-4 duration-500">
-                        {[
-                            { time: '2 mins ago', desc: 'Neural anomaly detection completed', detail: 'Score: 0.02 (Safe)', icon: BsActivity, color: 'text-primary' },
-                            { time: '1 hour ago', desc: 'Region-based KYC check passed', detail: 'Lat: 40.7128, Lng: -74.0060', icon: BsPinMap, color: 'text-emerald-500' },
-                            { time: 'Yesterday', desc: 'Secure encryption key generated', detail: 'AES-256-GCM', icon: BsClockHistory, color: 'text-slate-400' }
-                        ].map((act, i) => (
-                            <div key={i} className="flex gap-6 relative group">
-                                <div className={cn(
-                                    "w-10 h-10 rounded-2xl flex items-center justify-center z-10 border-2 border-slate-900 group-hover:scale-110 transition-transform duration-500",
-                                    "glass shadow-xl shadow-black/20",
-                                    act.color
-                                )}>
-                                    <act.icon size={14} />
-                                </div>
-                                <div className="flex-1 pt-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                                    <p className="text-md font-black tracking-tight">{act.desc}</p>
-                                    <p className="text-[11px] text-muted-foreground/60 font-medium mt-1 uppercase tracking-tight">{act.detail}</p>
-                                    <div className="text-[10px] font-black text-muted-foreground/40 mt-3 bg-white/[0.03] w-fit px-2 py-1 rounded-lg uppercase tracking-[0.1em] border border-white/5">
-                                        {act.time}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-300">
+                            <BsClockHistory size={24} />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-500">No Recent Activity</p>
+                            <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Activities will appear as they occur</p>
+                        </div>
                     </div>
                 )}
 
@@ -222,7 +204,6 @@ export const DetailDrawer = () => {
                                 {JSON.stringify(transaction.metadata, null, 2)}
                             </pre>
                             <div className="absolute top-6 right-6 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest bg-black/40 px-2.5 py-1 rounded-lg backdrop-blur-md border border-white/5">Secure-JSON v1.0</span>
                                 <button className="p-3 glass hover:bg-white/10 rounded-xl text-white transition-all shadow-xl">
                                     <BsDatabase size={16} />
                                 </button>
@@ -247,8 +228,8 @@ export const DetailDrawer = () => {
                 )}
                 <div className="flex items-center justify-center gap-2 mt-6 opacity-20">
                     <div className="h-px flex-1 bg-foreground" />
-                    <p className="text-[9px] font-black uppercase tracking-[0.4em]">
-                        Endpoint Secure
+                    <p className="text-[9px] font-bold uppercase tracking-[0.4em]">
+                        Statify End-to-End Encryption Enabled
                     </p>
                     <div className="h-px flex-1 bg-foreground" />
                 </div>

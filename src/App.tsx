@@ -7,18 +7,15 @@ import { VirtualizedTable } from './components/VirtualizedTable';
 import { DetailDrawer } from './components/DetailDrawer';
 import { DataUpload } from './components/DataUpload';
 import { FilterPanel } from './components/FilterPanel';
-import { generateMockData } from './data/mockData';
 import { cn } from './utils/cn';
-import { LuMenu, LuX, LuDownload, LuPlus, LuLayoutDashboard } from 'react-icons/lu';
+import { LuMenu, LuX, LuDownload, LuPlus } from 'react-icons/lu';
 
 const App = () => {
-  const { sidebarOpen, theme, setData, isLoading, currentView } = useStore();
+  const { sidebarOpen, theme, isLoading, currentView } = useStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Generate mock data on mount
-    const mockData = generateMockData(1000); // Reduced for better dev performance
-    setData(mockData);
+    // App initialization logic can go here
   }, []);
 
   useEffect(() => {
@@ -71,22 +68,6 @@ const App = () => {
               </div>
               <div className="space-y-8 animate-in delay-4">
                 <DataUpload />
-                <div className="premium-gradient rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden group">
-                  <div className="relative z-10">
-                    <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-6 border border-white/30 group-hover:scale-110 transition-transform duration-500">
-                      <LuLayoutDashboard size={24} className="text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold">Pro Analytics</h3>
-                    <p className="text-white/80 mt-3 text-sm leading-relaxed font-medium">
-                      Unlock advanced forecasting, anomaly detection, and custom API webhooks to take your data to the next level.
-                    </p>
-                    <button className="mt-8 w-full py-3 bg-white text-indigo-600 rounded-xl text-sm font-bold hover:bg-opacity-90 shadow-lg shadow-black/10 transition-all active:scale-95">
-                      Get Started Now
-                    </button>
-                  </div>
-                  <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors duration-500" />
-                  <div className="absolute -top-10 -left-10 w-32 h-32 bg-indigo-400/20 rounded-full blur-2xl animate-pulse" />
-                </div>
               </div>
             </div>
           </>

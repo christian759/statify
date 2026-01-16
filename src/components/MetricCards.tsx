@@ -50,7 +50,6 @@ export const MetricCards = () => {
             <Card
                 title="Total Revenue"
                 value={formatter.format(metrics.totalRevenue)}
-                trend={12.5}
                 icon={BsCurrencyDollar}
                 colorClass="bg-blue-600"
                 iconColorClass="text-blue-600"
@@ -59,7 +58,6 @@ export const MetricCards = () => {
             <Card
                 title="Active Users"
                 value={metrics.activeUsers.toLocaleString()}
-                trend={5.2}
                 icon={BsPeople}
                 colorClass="bg-indigo-600"
                 iconColorClass="text-indigo-600"
@@ -68,7 +66,6 @@ export const MetricCards = () => {
             <Card
                 title="Total Transactions"
                 value={metrics.transactionCount.toLocaleString()}
-                trend={-2.4}
                 icon={BsBagCheck}
                 colorClass="bg-emerald-600"
                 iconColorClass="text-emerald-600"
@@ -77,7 +74,6 @@ export const MetricCards = () => {
             <Card
                 title="Avg. Order Value"
                 value={formatter.format(metrics.avgOrderValue)}
-                trend={8.1}
                 icon={BsSpeedometer2}
                 colorClass="bg-amber-600"
                 iconColorClass="text-amber-600"
