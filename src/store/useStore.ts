@@ -35,10 +35,8 @@ export const useStore = create<AppState>()(
                 avgOrderValue: 0,
             },
             filters: initialFilters,
-            isLoading: true,
-            sidebarOpen: true,
+            isLoading: false,
             theme: 'light',
-            selectedRowId: null,
             rowSelection: {},
             tableConfig: {
                 sorting: [],
@@ -46,7 +44,6 @@ export const useStore = create<AppState>()(
                 columnOrder: [],
                 columnPinning: {},
             },
-            currentView: 'dashboard',
 
             setData: (data: Transaction[]) => {
                 const metrics = calculateMetrics(data);
@@ -87,8 +84,6 @@ export const useStore = create<AppState>()(
                     document.documentElement.classList.toggle('dark', theme === 'dark');
                 }
             },
-            toggleSidebar: () => set((state: AppState) => ({ sidebarOpen: !state.sidebarOpen })),
-            setSelectedRow: (id: string | null) => set({ selectedRowId: id }),
             setRowSelection: (updater: any) => set((state: AppState) => ({
                 rowSelection: typeof updater === 'function' ? updater(state.rowSelection) : updater
             })),
@@ -103,17 +98,14 @@ export const useStore = create<AppState>()(
             setTableConfig: (config: any) => set((state: AppState) => ({
                 tableConfig: { ...state.tableConfig, ...config }
             })),
-            setView: (view: string) => set({ currentView: view }),
         }),
         {
             name: 'statify-storage',
             partialize: (state: any) => ({
                 theme: state.theme,
-                sidebarOpen: state.sidebarOpen,
                 filters: state.filters,
                 tableConfig: state.tableConfig,
                 rowSelection: state.rowSelection,
-                currentView: state.currentView,
             }),
         }
     )

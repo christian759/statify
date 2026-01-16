@@ -20,7 +20,7 @@ import {
 } from 'react-icons/bs';
 
 export const VirtualizedTable = () => {
-    const { filteredData, selectedRowId, setSelectedRow, tableConfig, setTableConfig } = useStore();
+    const { filteredData, tableConfig, setTableConfig } = useStore();
     const [rowSelection, setRowSelection] = useState({});
 
     const columns = useMemo<ColumnDef<Transaction>[]>(
@@ -256,10 +256,8 @@ export const VirtualizedTable = () => {
                             return (
                                 <tr
                                     key={row.id}
-                                    onClick={() => setSelectedRow(row.original.id)}
                                     className={cn(
                                         "absolute w-full flex items-center border-b border-white/5 transition-all hover:bg-slate-100/50 dark:hover:bg-white/[0.02] cursor-pointer group/row",
-                                        selectedRowId === row.original.id && "bg-primary/5 hover:bg-primary/10 shadow-[inset_4px_0_0_0_var(--color-primary)]",
                                         row.getIsSelected() && "bg-primary/[0.02]"
                                     )}
                                     style={{

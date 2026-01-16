@@ -44,11 +44,8 @@ export interface AppState {
 
     // UI State
     isLoading: boolean;
-    sidebarOpen: boolean;
     theme: 'light' | 'dark';
-    selectedRowId: string | null;
     rowSelection: RowSelectionState;
-    currentView: string;
 
     // Table Config State (for persistence)
     tableConfig: {
@@ -65,10 +62,7 @@ export interface AppState {
     setData: (data: Transaction[]) => void;
     setFilters: (filters: Partial<FilterState>) => void;
     setTheme: (theme: 'light' | 'dark') => void;
-    toggleSidebar: () => void;
-    setSelectedRow: (id: string | null) => void;
     setRowSelection: (updater: any) => void;
     updateTransaction: (id: string, updates: Partial<Transaction>) => void;
     setTableConfig: (config: any) => void;
-    setView: (view: string) => void;
 }
