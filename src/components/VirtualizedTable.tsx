@@ -50,7 +50,7 @@ export const VirtualizedTable = () => {
                 accessorKey: 'id',
                 header: 'ID',
                 size: 100,
-                cell: (info) => <span className="font-mono text-xs text-muted-foreground">{info.getValue() as string}</span>,
+                cell: (info) => <span className="font-mono text-[10px] text-muted-foreground/60">{info.getValue() as string}</span>,
             },
             {
                 accessorKey: 'userName',
@@ -58,8 +58,8 @@ export const VirtualizedTable = () => {
                 size: 200,
                 cell: (info) => (
                     <div className="flex flex-col">
-                        <span className="font-medium">{info.getValue() as string}</span>
-                        <span className="text-xs text-muted-foreground">{info.row.original.userEmail}</span>
+                        <span className="font-semibold text-sm">{info.getValue() as string}</span>
+                        <span className="text-[11px] text-muted-foreground/80">{info.row.original.userEmail}</span>
                     </div>
                 ),
             },
@@ -68,7 +68,7 @@ export const VirtualizedTable = () => {
                 header: 'Amount',
                 size: 120,
                 cell: (info) => (
-                    <span className="font-semibold">
+                    <span className="font-bold tabular-nums">
                         {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(info.getValue() as number)}
                     </span>
                 ),
@@ -81,11 +81,11 @@ export const VirtualizedTable = () => {
                     const status = info.getValue() as string;
                     return (
                         <span className={cn(
-                            "px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider",
-                            status === 'completed' && "bg-emerald-500/10 text-emerald-500",
-                            status === 'pending' && "bg-amber-500/10 text-amber-500",
-                            status === 'failed' && "bg-rose-500/10 text-rose-500",
-                            status === 'refunded' && "bg-slate-500/10 text-slate-500"
+                            "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
+                            status === 'completed' && "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20",
+                            status === 'pending' && "bg-amber-500/10 text-amber-500 border border-amber-500/20",
+                            status === 'failed' && "bg-rose-500/10 text-rose-500 border border-rose-500/20",
+                            status === 'refunded' && "bg-slate-500/10 text-slate-500 border border-slate-500/20"
                         )}>
                             {status}
                         </span>
@@ -96,17 +96,19 @@ export const VirtualizedTable = () => {
                 accessorKey: 'category',
                 header: 'Category',
                 size: 150,
+                cell: (info) => <span className="text-sm font-medium opacity-80">{info.getValue() as string}</span>,
             },
             {
                 accessorKey: 'region',
                 header: 'Region',
                 size: 150,
+                cell: (info) => <span className="text-sm font-medium opacity-80">{info.getValue() as string}</span>,
             },
             {
                 accessorKey: 'timestamp',
                 header: 'Date',
                 size: 180,
-                cell: (info) => new Date(info.getValue() as string).toLocaleString(),
+                cell: (info) => <span className="text-sm opacity-80">{new Date(info.getValue() as string).toLocaleString()}</span>,
             },
         ],
         []
@@ -149,52 +151,54 @@ export const VirtualizedTable = () => {
     const rowVirtualizer = useVirtualizer({
         count: rows.length,
         getScrollElement: () => tableContainerRef.current,
-        estimateSize: () => 56, // row height
+        estimateSize: () => 64, // increased row height
         overscan: 10,
     });
 
     return (
-        <div className="flex flex-col h-full bg-card border border-border rounded-xl shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20">
-            <div className="flex items-center justify-between p-4 border-b border-border bg-background/50 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold">Transactions</h2>
-                    <span className="px-2 py-0.5 rounded-md bg-secondary text-muted-foreground text-xs font-medium">
-                        {filteredData.length.toLocaleString()} records
-                    </span>
-                    {Object.keys(rowSelection).length > 0 && (
-                        <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-500 text-xs font-bold">
-                            {Object.keys(rowSelection).length} selected
+        <div className="flex flex-col h-full overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-white/10 glass-card rounded-none border-none">
+                <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-bold tracking-tight">Transactions</h2>
+                    <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-lg glass text-muted-foreground text-[10px] font-bold uppercase tracking-widest border-none">
+                            {filteredData.length.toLocaleString()} total
                         </span>
-                    )}
+                        {Object.keys(rowSelection).length > 0 && (
+                            <span className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20 animate-in zoom-in">
+                                {Object.keys(rowSelection).length} selected
+                            </span>
+                        )}
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setTableConfig({ columnPinning: { left: ['select', 'id'] } })}
-                        className="p-2 hover:bg-secondary rounded-md text-muted-foreground transition-colors"
-                        title="Pin ID & Select"
+                        className="w-10 h-10 flex items-center justify-center glass hover:bg-white/10 rounded-xl text-muted-foreground transition-all active:scale-90"
+                        title="Pin Columns"
                     >
-                        <BsPinAngleFill />
+                        <BsPinAngleFill size={18} />
                     </button>
                     <button
                         onClick={() => setTableConfig({ columnVisibility: {} })}
-                        className="p-2 hover:bg-secondary rounded-md text-muted-foreground transition-colors"
-                        title="Reset Visibility"
+                        className="w-10 h-10 flex items-center justify-center glass hover:bg-white/10 rounded-xl text-muted-foreground transition-all active:scale-90"
+                        title="Reset View"
                     >
-                        <BsEyeSlash />
+                        <BsEyeSlash size={18} />
                     </button>
-                    <button className="p-2 hover:bg-secondary rounded-md text-muted-foreground transition-colors">
-                        <BsThreeDotsVertical />
+                    <button className="w-10 h-10 flex items-center justify-center glass hover:bg-white/10 rounded-xl text-muted-foreground transition-all active:scale-90">
+                        <BsThreeDotsVertical size={18} />
                     </button>
                 </div>
             </div>
 
             <div
                 ref={tableContainerRef}
-                className="flex-1 overflow-auto relative scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
+                className="flex-1 overflow-auto relative scrollbar-premium"
                 style={{ height: '700px' }}
             >
-                <table className="w-full border-collapse table-fixed">
-                    <thead className="sticky top-0 z-20 bg-background/90 backdrop-blur-md shadow-sm">
+                <table className="w-full border-collapse">
+                    <thead className="sticky top-0 z-30">
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map(header => {
@@ -208,22 +212,23 @@ export const VirtualizedTable = () => {
                                                 right: isPinned === 'right' ? header.column.getAfter('right') : undefined,
                                             }}
                                             className={cn(
-                                                "px-4 py-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-widest cursor-pointer hover:bg-secondary transition-colors relative group",
-                                                isPinned && "sticky z-30 bg-background border-r border-border"
+                                                "px-6 py-4 text-left text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] glass border-none z-10",
+                                                isPinned && "sticky z-40"
                                             )}
                                         >
                                             <div
-                                                className="flex items-center gap-2"
+                                                className="flex items-center gap-2 cursor-pointer select-none group/header"
                                                 onClick={header.column.getToggleSortingHandler()}
                                             >
                                                 {flexRender(header.column.columnDef.header, header.getContext())}
-                                                {{
-                                                    asc: <BsArrowUp className="text-primary animate-in fade-in zoom-in duration-300" />,
-                                                    desc: <BsArrowDown className="text-primary animate-in fade-in zoom-in duration-300" />,
-                                                }[header.column.getIsSorted() as string] ?? null}
+                                                <div className="w-4 h-4 flex items-center justify-center">
+                                                    {{
+                                                        asc: <BsArrowUp className="text-primary animate-in fade-in slide-in-from-bottom-1" />,
+                                                        desc: <BsArrowDown className="text-primary animate-in fade-in slide-in-from-top-1" />,
+                                                    }[header.column.getIsSorted() as string] ?? null}
+                                                </div>
                                             </div>
 
-                                            {/* Resize Handle */}
                                             <div
                                                 onMouseDown={header.getResizeHandler()}
                                                 onTouchStart={header.getResizeHandler()}
@@ -253,9 +258,9 @@ export const VirtualizedTable = () => {
                                     key={row.id}
                                     onClick={() => setSelectedRow(row.original.id)}
                                     className={cn(
-                                        "absolute w-full flex border-b border-border transition-colors hover:bg-secondary/40 cursor-pointer group",
-                                        selectedRowId === row.original.id && "bg-primary/5 hover:bg-primary/10 border-l-4 border-l-primary",
-                                        row.getIsSelected() && "bg-blue-500/5"
+                                        "absolute w-full flex items-center border-b border-white/5 transition-all hover:bg-white/[0.03] cursor-pointer group/row",
+                                        selectedRowId === row.original.id && "bg-primary/5 hover:bg-primary/10 shadow-[inset_4px_0_0_0_#6366f1]",
+                                        row.getIsSelected() && "bg-primary/[0.02]"
                                     )}
                                     style={{
                                         height: `${virtualRow.size}px`,
@@ -273,8 +278,8 @@ export const VirtualizedTable = () => {
                                                     right: isPinned === 'right' ? cell.column.getAfter('right') : undefined,
                                                 }}
                                                 className={cn(
-                                                    "px-4 py-3 flex items-center overflow-hidden text-sm",
-                                                    isPinned && "sticky z-10 bg-card border-r border-border group-hover:bg-secondary/40"
+                                                    "px-6 py-4 flex items-center overflow-hidden h-full",
+                                                    isPinned && "sticky z-20 bg-inherit border-r border-white/5"
                                                 )}
                                             >
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
