@@ -6,7 +6,7 @@ import {
     PolarAngleAxis, PolarRadiusAxis,
     XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
 } from 'recharts';
-import { LuPlus, LuSettings2, LuLayoutGrid, LuPieChart } from 'react-icons/lu';
+import { LuSettings2, LuLayoutGrid, LuActivity } from 'react-icons/lu';
 import { motion } from 'framer-motion';
 
 export const ChartExplorer = () => {
@@ -159,7 +159,7 @@ export const ChartExplorer = () => {
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center shadow-inner">
-                        <LuPieChart size={24} />
+                        <LuActivity size={24} />
                     </div>
                     <div>
                         <h2 className="text-2xl font-black tracking-tight">Chart Explorer</h2>
