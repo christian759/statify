@@ -9,6 +9,7 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-glow: rgba(99, 102, 241, 0.5);
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
@@ -20,6 +21,8 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+
+  --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
@@ -105,7 +108,7 @@
   }
 
   .glass-premium {
-    @apply backdrop-blur-2xl bg-white/5 border border-white/10 shadow-[0_8px_32px_0_rgba(0, 0, 0, 0.3)];
+    @apply backdrop-blur-2xl bg-white/5 border border-white/10 shadow-premium;
   }
 
   .text-glow {
@@ -128,9 +131,7 @@
     }
   }
 
-  .scrollbar-premium {
-    @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20;
-  }
+  /* Global scrollbars are handled via ::-webkit-scrollbar at the bottom */
 }
 
 /* Custom utility for the background mesh */
