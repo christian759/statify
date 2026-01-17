@@ -27,8 +27,6 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
   --radius-3xl: 2rem;
-
-  --letter-spacing-tightest: -0.05em;
 }
 
 @layer base {
@@ -129,7 +127,7 @@
 
 /* Typography Proportions Refinement */
 h1 {
-  @apply text-4xl md:text-5xl lg:text-6xl font-black tracking-tightest;
+  @apply text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter;
 }
 
 h2 {
