@@ -225,8 +225,6 @@ export const useStore = create<AppState>()(
 
             setActiveColumn: (columnId: string | undefined) => set({ activeAnalysisColumn: columnId }),
 
-            setActiveTab: (tab: 'analysis' | 'correlations' | 'data') => set({ activeTab: tab }),
-
             // Pro Actions
             imputeMissing: (columnId: string, strategy: 'mean' | 'median' | 'mode' | 'zero') => {
                 const { data, columns, stats } = get();
