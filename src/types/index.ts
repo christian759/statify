@@ -26,6 +26,14 @@ export interface ColumnMetadata {
         skewness?: number;
         kurtosis?: number;
         frequencies?: Record<string, number>; // For categorical
+
+        // Categorical Intelligence
+        entropy?: number; // Diversity index
+        cardinality?: 'low' | 'medium' | 'high';
+
+        // Temporal Intelligence
+        dateRange?: { min: string; max: string };
+        isContinuous?: boolean;
     };
     qualityScore: number; // 0-100
 }
@@ -63,6 +71,7 @@ export interface AppState {
     theme: 'light' | 'dark';
     rowSelection: RowSelectionState;
     activeAnalysisColumn?: string;
+    activeTab: 'analysis' | 'correlations' | 'data';
 
     // Table Config State
     tableConfig: {
@@ -76,7 +85,6 @@ export interface AppState {
     };
 
     // Actions
-    activeTab: 'analysis' | 'correlations' | 'data';
     setActiveTab: (tab: 'analysis' | 'correlations' | 'data') => void;
 
     setDataset: (data: DataRow[], metadata: { fileName: string; fileSize: number }) => void;
@@ -88,6 +96,7 @@ export interface AppState {
 
     // Pro Actions
     imputeMissing: (columnId: string, strategy: 'mean' | 'median' | 'mode' | 'zero') => void;
+    transformColumn: (columnId: string, transformation: 'log' | 'normalize' | 'standardize') => void;
     generateInsights: () => void;
     dropColumn: (columnId: string) => void;
 }

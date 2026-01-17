@@ -51,8 +51,8 @@ const calculateStats = (data: DataRow[]): { columns: ColumnMetadata[]; stats: Da
             stats.stdDev = Math.sqrt(numericValues.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / numericValues.length);
 
             // Outlier Detection (IQR)
-            const q1 = sorted[Math.floor(sorted.length * 0.25)];
-            const q3 = sorted[Math.floor(sorted.length * 0.75)];
+            const q1 = sorted[Math.floor(sorted.length * 0.25)] || 0;
+            const q3 = sorted[Math.floor(sorted.length * 0.75)] || 0;
             const iqr = q3 - q1;
             const lowerBound = q1 - 1.5 * iqr;
             const upperBound = q3 + 1.5 * iqr;
@@ -67,6 +67,14 @@ const calculateStats = (data: DataRow[]): { columns: ColumnMetadata[]; stats: Da
 
             // Quality penalty for skewness
             if (Math.abs(stats.skewness) > 1) qualityScore -= 5;
+        } else if (type === 'date') {
+            const dateValues = nonNullValues.map(v => new Date(String(v)).getTime()).filter(t => !isNaN(t));
+            if (dateValues.length > 0) {
+                stats.dateRange = {
+                    min: new Date(Math.min(...dateValues)).toISOString(),
+                    max: new Date(Math.max(...dateValues)).toISOString()
+                };
+            }
         } else {
             const frequencies: Record<string, number> = {};
             nonNullValues.forEach(v => {
@@ -78,6 +86,13 @@ const calculateStats = (data: DataRow[]): { columns: ColumnMetadata[]; stats: Da
                     .sort(([, a], [, b]) => b - a)
                     .slice(0, 10)
             );
+
+            // Entropy (Natural diversity index)
+            const prob = Object.values(frequencies).map(c => c / nonNullValues.length);
+            stats.entropy = -prob.reduce((acc, p) => acc + (p * Math.log(p)), 0);
+
+            const ratio = stats.uniqueCount / data.length;
+            stats.cardinality = ratio > 0.8 ? 'high' : ratio > 0.3 ? 'medium' : 'low';
         }
 
         return { id: key, type, stats, qualityScore: Math.max(0, Math.min(100, qualityScore)) };
@@ -210,6 +225,8 @@ export const useStore = create<AppState>()(
 
             setActiveColumn: (columnId: string | undefined) => set({ activeAnalysisColumn: columnId }),
 
+            setActiveTab: (tab: 'analysis' | 'correlations' | 'data') => set({ activeTab: tab }),
+
             // Pro Actions
             imputeMissing: (columnId: string, strategy: 'mean' | 'median' | 'mode' | 'zero') => {
                 const { data, columns, stats } = get();
@@ -239,6 +256,44 @@ export const useStore = create<AppState>()(
                     ...row,
                     [columnId]: (row[columnId] === null || row[columnId] === undefined || row[columnId] === '') ? fillValue : row[columnId]
                 }));
+
+                const { columns: newCols, stats: newStats, correlations: newCorrs } = calculateStats(newData);
+                set({
+                    data: newData,
+                    filteredData: newData,
+                    columns: newCols,
+                    correlations: newCorrs,
+                    stats: { ...newStats, fileName: stats.fileName, fileSize: stats.fileSize }
+                });
+                get().generateInsights();
+            },
+
+            transformColumn: (columnId: string, transformation: 'log' | 'normalize' | 'standardize') => {
+                const { data, columns, stats } = get();
+                const col = columns.find(c => c.id === columnId);
+                if (!col || col.type !== 'numeric') return;
+
+                const values = data.map(r => Number(r[columnId])).filter(v => !isNaN(v));
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                const stdDev = Math.sqrt(values.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / values.length);
+
+                const newData = data.map(row => {
+                    const val = Number(row[columnId]);
+                    if (isNaN(val)) return row;
+
+                    let newVal = val;
+                    if (transformation === 'log') {
+                        newVal = Math.log(Math.abs(val) + 1) * Math.sign(val);
+                    } else if (transformation === 'normalize') {
+                        newVal = max !== min ? (val - min) / (max - min) : 0;
+                    } else if (transformation === 'standardize') {
+                        newVal = stdDev !== 0 ? (val - mean) / stdDev : 0;
+                    }
+
+                    return { ...row, [columnId]: newVal };
+                });
 
                 const { columns: newCols, stats: newStats, correlations: newCorrs } = calculateStats(newData);
                 set({
