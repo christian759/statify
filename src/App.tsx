@@ -8,7 +8,11 @@ import { cn } from './utils/cn';
 import { LuTerminal, LuSearch } from 'react-icons/lu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ColumnSidebar } from './components/ColumnSidebar';
+<<<<<<< HEAD
 import { ChartExplorer } from './components/ChartExplorer';
+=======
+import { AlchemyTools } from './components/AlchemyTools';
+>>>>>>> parent of b4fd178 (feat: introduce core application UI with data analysis components and a data mining utility file.)
 import { InsightPanel } from './components/InsightPanel';
 import { QualityMetrics } from './components/QualityMetrics';
 import { CorrelationHeatmap } from './components/CorrelationHeatmap';

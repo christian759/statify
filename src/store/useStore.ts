@@ -384,7 +384,7 @@ export const useStore = create<AppState>()(
             },
         }),
         {
-            name: 'statify-data-science-storage',
+            name: 'statify-storage-v2',
             partialize: (state: any) => ({
                 theme: state.theme,
                 filters: state.filters,
