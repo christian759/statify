@@ -1,60 +1,31 @@
 import { useRef, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { BsCloudArrowUp, BsFileEarmarkSpreadsheet, BsX, BsCheckCircleFill, BsDatabase } from 'react-icons/bs';
+import { BsCloudArrowUp, BsFileEarmarkSpreadsheet, BsCheckCircleFill, BsDatabase } from 'react-icons/bs';
 import { cn } from '../utils/cn';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
-import type { Transaction, TransactionStatus } from '../types';
 
 export const DataUpload = () => {
-    const { setData } = useStore();
+    const { setDataset } = useStore();
     const [isDragging, setIsDragging] = useState(false);
     const [status, setStatus] = useState<'idle' | 'uploading' | 'success'>('idle');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const mapDataToTransactions = (raw: any[]): Transaction[] => {
-        return raw.map((item, i) => {
-            const amount = parseFloat(item.amount || item.Amount || item.value || item.Price || '0');
-            const userName = item.userName || item.UserName || item.User || item.Customer || item.Name || 'Unknown User';
-            const userEmail = item.userEmail || item.Email || item.contact || `${userName.toLowerCase().replace(' ', '.')}@example.com`;
-            const status = (item.status || item.Status || 'completed').toLowerCase() as TransactionStatus;
-            const category = item.category || item.Category || item.Type || 'Uncategorized';
-            const region = item.region || item.Region || item.Country || 'Global';
-            const timestamp = item.timestamp || item.Date || item.Time || item.CreatedAt || new Date().toISOString();
-
-            return {
-                id: item.id || `up_${Date.now()}_${i}`,
-                userId: item.userId || `u_${i}`,
-                userName,
-                userEmail,
-                amount,
-                currency: item.currency || item.Currency || 'USD',
-                status: ['completed', 'pending', 'failed', 'refunded'].includes(status) ? status : 'completed',
-                timestamp,
-                category,
-                region,
-                metadata: {
-                    ip: item.ip || '0.0.0.0',
-                    device: item.device || 'Desktop',
-                    browser: item.browser || 'Chrome'
-                }
-            } as Transaction;
-        });
-    };
-
     const processFile = (file: File) => {
         setStatus('uploading');
+        const metadata = { fileName: file.name, fileSize: file.size };
+
         if (file.name.endsWith('.csv')) {
             Papa.parse(file, {
                 complete: (results) => {
-                    const mapped = mapDataToTransactions(results.data as any[]);
                     setTimeout(() => {
-                        setData(mapped);
+                        setDataset(results.data as any[], metadata);
                         setStatus('success');
-                    }, 1500);
+                    }, 1000);
                 },
                 header: true,
                 skipEmptyLines: true,
+                dynamicTyping: true,
             });
         } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
             const reader = new FileReader();
@@ -64,11 +35,10 @@ export const DataUpload = () => {
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
                 const json = XLSX.utils.sheet_to_json(worksheet);
-                const mapped = mapDataToTransactions(json);
                 setTimeout(() => {
-                    setData(mapped);
+                    setDataset(json as any[], metadata);
                     setStatus('success');
-                }, 1500);
+                }, 1000);
             };
             reader.readAsArrayBuffer(file);
         }

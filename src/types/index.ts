@@ -1,53 +1,53 @@
 import type { SortingState, VisibilityState, ColumnOrderState, RowSelectionState } from '@tanstack/react-table';
 
-export type TransactionStatus = 'completed' | 'pending' | 'failed' | 'refunded';
+export type ColumnType = 'numeric' | 'categorical' | 'string' | 'date';
 
-export interface Transaction {
+export interface ColumnMetadata {
     id: string;
-    userId: string;
-    userName: string;
-    userEmail: string;
-    amount: number;
-    currency: string;
-    status: TransactionStatus;
-    timestamp: string;
-    category: string;
-    region: string;
-    metadata: {
-        ip: string;
-        device: string;
-        browser: string;
+    type: ColumnType;
+    stats: {
+        min?: number;
+        max?: number;
+        mean?: number;
+        median?: number;
+        stdDev?: number;
+        missingCount: number;
+        uniqueCount: number;
+        frequencies?: Record<string, number>; // For categorical
     };
 }
 
-export interface MetricSummary {
-    totalRevenue: number;
-    transactionCount: number;
-    activeUsers: number;
-    avgOrderValue: number;
+export interface DataRow {
+    [key: string]: any;
+}
+
+export interface DatasetStats {
+    rowCount: number;
+    columnCount: number;
+    fileSize?: number;
+    fileName?: string;
 }
 
 export interface FilterState {
     search: string;
-    status: TransactionStatus[];
-    dateRange: [Date | null, Date | null];
-    minAmount: number;
-    maxAmount: number;
+    columnFilters: Record<string, any>;
 }
 
 export interface AppState {
     // Data
-    data: Transaction[];
-    filteredData: Transaction[];
-    metrics: MetricSummary;
+    data: DataRow[];
+    filteredData: DataRow[];
+    columns: ColumnMetadata[];
+    stats: DatasetStats;
     filters: FilterState;
 
     // UI State
     isLoading: boolean;
     theme: 'light' | 'dark';
     rowSelection: RowSelectionState;
+    activeAnalysisColumn?: string;
 
-    // Table Config State (for persistence)
+    // Table Config State
     tableConfig: {
         sorting: SortingState;
         columnVisibility: VisibilityState;
@@ -59,10 +59,10 @@ export interface AppState {
     };
 
     // Actions
-    setData: (data: Transaction[]) => void;
+    setDataset: (data: DataRow[], metadata: { fileName: string; fileSize: number }) => void;
     setFilters: (filters: Partial<FilterState>) => void;
     setTheme: (theme: 'light' | 'dark') => void;
     setRowSelection: (updater: any) => void;
-    updateTransaction: (id: string, updates: Partial<Transaction>) => void;
     setTableConfig: (config: any) => void;
+    setActiveColumn: (columnId: string | undefined) => void;
 }

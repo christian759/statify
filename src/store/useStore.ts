@@ -1,26 +1,75 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { AppState, Transaction, FilterState, MetricSummary } from '../types';
-import { isWithinInterval, parseISO } from 'date-fns';
+import type { AppState, DataRow, FilterState, ColumnMetadata, ColumnType, DatasetStats } from '../types';
 
-const calculateMetrics = (data: Transaction[]): MetricSummary => {
-    const totalRevenue = data.reduce((acc, curr) => acc + (curr.status === 'completed' ? curr.amount : 0), 0);
-    const activeUsers = new Set(data.map(d => d.userId)).size;
+const detectColumnType = (values: any[]): ColumnType => {
+    const nonNullValues = values.filter(v => v !== null && v !== undefined && v !== '');
+    if (nonNullValues.length === 0) return 'string';
+
+    const isNumeric = nonNullValues.every(v => !isNaN(Number(v)));
+    if (isNumeric) return 'numeric';
+
+    const isDate = nonNullValues.every(v => !isNaN(Date.parse(v)));
+    if (isDate) return 'date';
+
+    return 'string';
+};
+
+const calculateStats = (data: DataRow[]): { columns: ColumnMetadata[]; stats: DatasetStats } => {
+    if (data.length === 0) return { columns: [], stats: { rowCount: 0, columnCount: 0 } };
+
+    const keys = Object.keys(data[0]);
+    const columns: ColumnMetadata[] = keys.map(key => {
+        const values = data.map(row => row[key]);
+        const type = detectColumnType(values);
+        const nonNullValues = values.filter(v => v !== null && v !== undefined && v !== '');
+
+        const stats: ColumnMetadata['stats'] = {
+            missingCount: data.length - nonNullValues.length,
+            uniqueCount: new Set(values).size,
+        };
+
+        if (type === 'numeric') {
+            const numericValues = nonNullValues.map(v => Number(v));
+            stats.min = Math.min(...numericValues);
+            stats.max = Math.max(...numericValues);
+            stats.mean = numericValues.reduce((a, b) => a + b, 0) / numericValues.length;
+
+            const sorted = [...numericValues].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            stats.median = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+
+            const mean = stats.mean;
+            stats.stdDev = Math.sqrt(numericValues.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / numericValues.length);
+        } else {
+            // Categorical/String frequency analysis
+            const frequencies: Record<string, number> = {};
+            nonNullValues.forEach(v => {
+                const s = String(v);
+                frequencies[s] = (frequencies[s] || 0) + 1;
+            });
+            stats.frequencies = Object.fromEntries(
+                Object.entries(frequencies)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 10) // Top 10 frequencies
+            );
+        }
+
+        return { id: key, type, stats };
+    });
 
     return {
-        totalRevenue,
-        transactionCount: data.length,
-        activeUsers,
-        avgOrderValue: data.length > 0 ? totalRevenue / data.length : 0,
+        columns,
+        stats: {
+            rowCount: data.length,
+            columnCount: keys.length,
+        }
     };
 };
 
 const initialFilters: FilterState = {
     search: '',
-    status: [],
-    dateRange: [null, null],
-    minAmount: 0,
-    maxAmount: 10000,
+    columnFilters: {},
 };
 
 export const useStore = create<AppState>()(
@@ -28,16 +77,13 @@ export const useStore = create<AppState>()(
         (set, get) => ({
             data: [],
             filteredData: [],
-            metrics: {
-                totalRevenue: 0,
-                transactionCount: 0,
-                activeUsers: 0,
-                avgOrderValue: 0,
-            },
+            columns: [],
+            stats: { rowCount: 0, columnCount: 0 },
             filters: initialFilters,
             isLoading: false,
             theme: 'light',
             rowSelection: {},
+            activeAnalysisColumn: undefined,
             tableConfig: {
                 sorting: [],
                 columnVisibility: {},
@@ -45,37 +91,36 @@ export const useStore = create<AppState>()(
                 columnPinning: {},
             },
 
-            setData: (data: Transaction[]) => {
-                const metrics = calculateMetrics(data);
-                set({ data, filteredData: data, metrics, isLoading: false });
+            setDataset: (data: DataRow[], metadata: { fileName: string; fileSize: number }) => {
+                const { columns, stats } = calculateStats(data);
+                set({
+                    data,
+                    filteredData: data,
+                    columns,
+                    stats: { ...stats, ...metadata },
+                    isLoading: false
+                });
             },
 
             setFilters: (newFilters: Partial<FilterState>) => {
                 const filters = { ...get().filters, ...newFilters };
                 const { data } = get();
 
-                const filteredData = data.filter((item: Transaction) => {
+                const filteredData = data.filter((item: DataRow) => {
                     const matchesSearch = !filters.search ||
-                        item.userName.toLowerCase().includes(filters.search.toLowerCase()) ||
-                        item.id.toLowerCase().includes(filters.search.toLowerCase());
+                        Object.values(item).some(val =>
+                            String(val).toLowerCase().includes(filters.search.toLowerCase())
+                        );
 
-                    const matchesStatus = filters.status.length === 0 || filters.status.includes(item.status);
+                    const matchesColumnFilters = Object.entries(filters.columnFilters).every(([key, value]) => {
+                        if (!value) return true;
+                        return String(item[key]).toLowerCase().includes(String(value).toLowerCase());
+                    });
 
-                    const matchesAmount = item.amount >= (filters.minAmount || 0) && item.amount <= (filters.maxAmount || 1000000);
-
-                    let matchesDate = true;
-                    if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) {
-                        const itemDate = parseISO(item.timestamp);
-                        matchesDate = isWithinInterval(itemDate, {
-                            start: filters.dateRange[0],
-                            end: filters.dateRange[1]
-                        });
-                    }
-
-                    return matchesSearch && matchesStatus && matchesAmount && matchesDate;
+                    return matchesSearch && matchesColumnFilters;
                 });
 
-                set({ filters, filteredData, metrics: calculateMetrics(filteredData) });
+                set({ filters, filteredData });
             },
 
             setTheme: (theme: 'light' | 'dark') => {
@@ -84,28 +129,24 @@ export const useStore = create<AppState>()(
                     document.documentElement.classList.toggle('dark', theme === 'dark');
                 }
             },
+
             setRowSelection: (updater: any) => set((state: AppState) => ({
                 rowSelection: typeof updater === 'function' ? updater(state.rowSelection) : updater
             })),
 
-            updateTransaction: (id: string, updates: Partial<Transaction>) => {
-                const { data } = get();
-                const newData = data.map((item: Transaction) => item.id === id ? { ...item, ...updates } : item);
-                set({ data: newData });
-                get().setFilters({}); // Re-apply filters
-            },
-
             setTableConfig: (config: any) => set((state: AppState) => ({
                 tableConfig: { ...state.tableConfig, ...config }
             })),
+
+            setActiveColumn: (columnId: string | undefined) => set({ activeAnalysisColumn: columnId }),
         }),
         {
-            name: 'statify-storage',
+            name: 'statify-data-science-storage',
             partialize: (state: any) => ({
                 theme: state.theme,
                 filters: state.filters,
                 tableConfig: state.tableConfig,
-                rowSelection: state.rowSelection,
+                activeAnalysisColumn: state.activeAnalysisColumn,
             }),
         }
     )
