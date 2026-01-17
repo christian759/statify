@@ -11,8 +11,7 @@ import {
     AreaChart,
     Area
 } from 'recharts';
-import { LuBarChart2, LuPieChart, LuWaves } from 'react-icons/lu';
-import { cn } from '../utils/cn';
+import { LuActivity, LuWaves } from 'react-icons/lu';
 
 export const AnalyticalVisualizer = () => {
     const { columns, activeAnalysisColumn, filteredData, theme } = useStore();
@@ -68,7 +67,7 @@ export const AnalyticalVisualizer = () => {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shadow-inner">
-                        {isNumeric ? <LuWaves size={24} /> : <LuBarChart2 size={24} />}
+                        {isNumeric ? <LuWaves size={24} /> : <LuActivity size={24} />}
                     </div>
                     <div>
                         <h3 className="text-xl font-black tracking-tight flex items-center gap-2 text-foreground">

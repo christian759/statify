@@ -15,12 +15,11 @@ import {
     BsArrowDown,
     BsArrowUp,
     BsThreeDotsVertical,
-    BsPinAngleFill,
     BsEyeSlash
 } from 'react-icons/bs';
 
 export const VirtualizedTable = () => {
-    const { filteredData, columns: datasetColumns, tableConfig, setTableConfig, activeAnalysisColumn, setActiveColumn } = useStore();
+    const { filteredData, columns: datasetColumns, tableConfig, setTableConfig, setActiveColumn } = useStore();
     const [rowSelection, setRowSelection] = useState({});
 
     const columns = useMemo<ColumnDef<DataRow>[]>(

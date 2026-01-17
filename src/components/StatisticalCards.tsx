@@ -1,6 +1,5 @@
 import { useStore } from '../store/useStore';
-import { LuDatabase, LuColumns, LuActivity, LuInfo } from 'react-icons/lu';
-import { cn } from '../utils/cn';
+import { LuDatabase, LuTable, LuActivity, LuInfo } from 'react-icons/lu';
 
 export const StatisticalCards = () => {
     const { stats, columns, activeAnalysisColumn } = useStore();
@@ -30,11 +29,11 @@ export const StatisticalCards = () => {
 
             <div className="glass-card p-6 rounded-3xl space-y-4 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <LuColumns size={80} />
+                    <LuTable size={80} />
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
-                        <LuColumns size={20} />
+                        <LuTable size={20} />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Dimensions</span>
                 </div>
