@@ -27,6 +27,8 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
   --radius-3xl: 2rem;
+
+  --letter-spacing-tightest: -0.05em;
 }
 
 @layer base {
