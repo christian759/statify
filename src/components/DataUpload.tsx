@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { LuDatabase, LuUpload, LuCheck, LuFileJson, LuActivity } from 'react-icons/lu';
+import { LuDatabase, LuUpload, LuCheck, LuFile, LuActivity } from 'react-icons/lu';
 import { cn } from '../utils/cn';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -144,7 +144,7 @@ export const DataUpload = () => {
                         )}
                         {hasData && status === 'idle' && (
                             <div className="flex items-center gap-3 text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">
-                                <span className="flex items-center gap-1.5"><LuFileJson /> CSV/XLSX</span>
+                                <span className="flex items-center gap-1.5"><LuFile /> CSV/XLSX</span>
                                 <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
                                 <span>Fast Sync</span>
                             </div>
@@ -175,7 +175,7 @@ export const DataUpload = () => {
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">Edge Process</span>
                     </div>
                     <div className="flex flex-col items-center gap-3">
-                        <LuFileJson size={28} />
+                        <LuFile size={28} />
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">Live Viz</span>
                     </div>
                 </div>

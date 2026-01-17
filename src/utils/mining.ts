@@ -1,4 +1,4 @@
-import { DataRow } from '../types';
+import type { DataRow } from '../types';
 
 /**
  * Simple Linear Regression

@@ -8,7 +8,7 @@ import { cn } from './utils/cn';
 import { LuSun, LuMoon, LuSearch, LuDatabase, LuActivity, LuTerminal } from 'react-icons/lu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ColumnSidebar } from './components/ColumnSidebar';
-import { AlchemyTools } from './components/AlchemyTools';
+import { CorrelationHeatmap } from './components/CorrelationHeatmap';
 import { InsightPanel } from './components/InsightPanel';
 import { QualityMetrics } from './components/QualityMetrics';
 import { DataMiningLab } from './components/DataMiningLab';
@@ -82,9 +82,6 @@ const App = () => {
         {!hasData ? (
           <motion.main
             key="landing"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98 }}
             className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6 max-w-4xl mx-auto"
           >
             <div className="text-center space-y-4 mb-12">
