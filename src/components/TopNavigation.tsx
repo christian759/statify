@@ -1,5 +1,5 @@
 import { useStore } from '../store/useStore';
-import { LuDatabase, LuSun, LuMoon, LuLayoutDashboard, LuPieChart, LuTable, LuTrash2 } from 'react-icons/lu';
+import { LuDatabase, LuSun, LuMoon, LuLayoutDashboard, LuActivity, LuTable, LuTrash2 } from 'react-icons/lu';
 import { cn } from '../utils/cn';
 
 export const TopNavigation = () => {
@@ -30,7 +30,7 @@ export const TopNavigation = () => {
             <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center p-1 rounded-xl bg-white/5 border border-white/5">
                 {[
                     { id: 'analysis', label: 'Dashboard', icon: LuLayoutDashboard },
-                    { id: 'correlations', label: 'Visualizer', icon: LuPieChart },
+                    { id: 'correlations', label: 'Visualizer', icon: LuActivity },
                     { id: 'data', label: 'Data', icon: LuTable },
                 ].map((tab) => (
                     <button
