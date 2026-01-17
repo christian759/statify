@@ -8,7 +8,7 @@ import { cn } from './utils/cn';
 import { LuSun, LuMoon, LuSearch, LuDatabase, LuActivity, LuTerminal } from 'react-icons/lu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ColumnSidebar } from './components/ColumnSidebar';
-import { AlchemyTools } from './components/AlchemyTools';
+import { CorrelationHeatmap } from './components/CorrelationHeatmap';
 import { InsightPanel } from './components/InsightPanel';
 import { QualityMetrics } from './components/QualityMetrics';
 import { CorrelationHeatmap } from './components/CorrelationHeatmap';
