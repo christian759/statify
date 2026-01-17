@@ -7,16 +7,17 @@ import { DataUpload } from './components/DataUpload';
 import { cn } from './utils/cn';
 import { LuSun, LuMoon, LuSearch, LuDatabase, LuActivity, LuTerminal } from 'react-icons/lu';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ColumnSidebar } from './components/ColumnSidebar'; // Assuming this is a new component
-import { AlchemyTools } from './components/AlchemyTools'; // Assuming this is a new component
-import { InsightPanel } from './components/InsightPanel'; // Assuming this is a new component
+import { ColumnSidebar } from './components/ColumnSidebar';
+import { AlchemyTools } from './components/AlchemyTools';
+import { InsightPanel } from './components/InsightPanel';
+import { QualityMetrics } from './components/QualityMetrics';
+import { CorrelationHeatmap } from './components/CorrelationHeatmap';
 
 const App = () => {
-  const { theme, isLoading, filters, setFilters, data, stats, setDataset } = useStore();
+  const { theme, isLoading, filters, setFilters, data, stats, setDataset, activeTab, setActiveTab } = useStore();
   const hasData = data.length > 0;
 
   useEffect(() => {
-    // Update body class for dark mode
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -30,11 +31,12 @@ const App = () => {
       age: Math.floor(Math.random() * 50) + 20,
       salary: Math.floor(Math.random() * 80000) + 30000,
       department: ['Engineering', 'Marketing', 'Sales', 'Product'][Math.floor(Math.random() * 4)],
-      status: Math.random() > 0.1 ? 'Active' : null,
+      performance: Math.random() * 100,
       contribution: Math.random() * 100,
+      experience: Math.floor(Math.random() * 15),
       last_login: new Date(Date.now() - Math.random() * 1000000000).toISOString()
     }));
-    setDataset(sample, { fileName: 'sample_workforce_data.csv', fileSize: 4520 });
+    setDataset(sample, { fileName: 'workforce_precision_01.csv', fileSize: 4520 });
   };
 
   if (isLoading) {
@@ -42,7 +44,7 @@ const App = () => {
       <div className="flex items-center justify-center h-screen bg-slate-950">
         <div className="text-center space-y-6">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto shadow-lg shadow-primary/20" />
-          <h2 className="text-2xl font-black tracking-tight text-white">Initializing Statify</h2>
+          <h2 className="text-xl font-black tracking-tight text-white">Initializing Engine</h2>
         </div>
       </div>
     );
@@ -50,27 +52,12 @@ const App = () => {
 
   return (
     <div className={cn(
-      "min-h-screen transition-colors duration-700 bg-slate-950 text-white selection:bg-primary/30",
-      theme === 'light' ? "bg-slate-50 text-slate-900" : "bg-slate-950 text-white"
+      "min-h-screen transition-all duration-700 bg-background text-foreground selection:bg-primary/30",
+      theme === 'light' ? "light" : "dark"
     )}>
       {/* Dynamic Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.4, 0.3]
-          }}
-          transition={{ duration: 10, repeat: Infinity }}
-          className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary/10 blur-[150px] rounded-full"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.3, 0.2]
-          }}
-          transition={{ duration: 15, repeat: Infinity, delay: 2 }}
-          className="absolute top-[20%] -right-[5%] w-[40%] h-[40%] bg-rose-500/10 blur-[120px] rounded-full"
-        />
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="bg-mesh absolute inset-0 opacity-50" />
       </div>
 
       <nav className="fixed top-0 left-0 w-full z-50 p-6 flex items-center justify-between pointer-events-none">
@@ -78,7 +65,7 @@ const App = () => {
           <div className="w-10 h-10 rounded-xl premium-gradient flex items-center justify-center text-white shadow-lg shadow-primary/20 transition-transform group-hover:rotate-12">
             <LuDatabase size={20} />
           </div>
-          <span className="text-2xl font-black tracking-tighter">Statify <span className="text-primary">Pro</span></span>
+          <span className="text-xl font-black tracking-tighter">Statify <span className="text-primary">Pro</span></span>
         </div>
 
         <div className="flex items-center gap-3 pointer-events-auto">
@@ -95,37 +82,33 @@ const App = () => {
         {!hasData ? (
           <motion.main
             key="landing"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.8 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6 max-w-4xl mx-auto"
           >
-            <div className="text-center space-y-6 mb-12">
+            <div className="text-center space-y-4 mb-12">
               <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-premium text-[10px] font-black uppercase tracking-[0.3em] text-primary"
               >
                 <LuTerminal size={12} />
-                Statistical Engine v2.0
+                Scientific Precision Engine
               </motion.div>
-              <h1 className="text-7xl md:text-8xl font-black tracking-tightest leading-none">
-                Solve your <span className="text-glow text-primary">Data</span>
+              <h1 className="text-5xl md:text-6xl font-black leading-none">
+                Precision in <span className="text-glow text-primary">Data</span>
               </h1>
-              <p className="text-xl text-muted-foreground font-medium max-w-xl mx-auto">
-                A professional-grade workbench for edge-computed statistical analysis, data cleaning, and AI insights.
+              <p className="text-lg text-muted-foreground font-medium max-w-lg mx-auto leading-relaxed">
+                Edge-computed statistical analysis, outlier detection, and predictive readiness scoring.
               </p>
             </div>
             <DataUpload />
 
             <button
               onClick={loadSampleData}
-              className="mt-8 text-xs font-black uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-colors flex items-center gap-2 group"
+              className="mt-8 text-xs font-black uppercase tracking-widest text-muted-foreground/30 hover:text-primary transition-colors flex items-center gap-2 group"
             >
-              <span className="w-6 h-[1px] bg-white/10 group-hover:bg-primary/30 transition-colors" />
-              No data? Try with sample workforce payload
-              <span className="w-6 h-[1px] bg-white/10 group-hover:bg-primary/30 transition-colors" />
+              Try sample workforce data
+              <span className="w-4 h-4 rounded-full border border-white/10 group-hover:border-primary/50 flex items-center justify-center transition-all">→</span>
             </button>
           </motion.main>
         ) : (
@@ -135,73 +118,96 @@ const App = () => {
             animate={{ opacity: 1 }}
             className="relative z-10 w-full min-h-screen flex"
           >
-            {/* Pro Sidebar */}
-            <aside className="w-80 h-screen sticky top-0 border-r border-white/5 bg-slate-950/50 backdrop-blur-3xl p-6 pt-24 hidden xl:block">
+            {/* Sidebar remains stable */}
+            <aside className="w-72 h-screen sticky top-0 border-r border-white/5 bg-background/50 backdrop-blur-3xl p-6 pt-24 hidden xl:block">
               <ColumnSidebar />
             </aside>
 
-            {/* Main Workbench Area */}
+            {/* Main Workspace Area */}
             <div className="flex-1 min-w-0 flex flex-col pt-24 pb-12 px-8 lg:px-12 space-y-8">
-              <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 animate-in slide-in-from-bottom duration-700">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <LuActivity className="text-primary" size={32} />
-                    <h2 className="text-5xl font-black tracking-tight">Workbench</h2>
-                  </div>
+              <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="glass-premium px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                      {stats.fileName}
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                    <span className="text-xs font-bold text-muted-foreground/60">{data.length.toLocaleString()} Observations</span>
+                    <LuActivity className="text-primary" size={24} />
+                    <h2 className="text-3xl font-black">Workspace</h2>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                      <span className="text-[10px] font-black uppercase tracking-wider opacity-60">Source:</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-primary">{stats.fileName}</span>
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider opacity-30">//</span>
+                    <span className="text-[10px] font-black uppercase tracking-wider opacity-60">{data.length.toLocaleString()} Observations</span>
                   </div>
                 </div>
 
-                <div className="flex-1">
-                  <div className="relative group">
-                    <LuSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
-                    <input
-                      type="text"
-                      placeholder="Filter corpus..."
-                      value={filters.search}
-                      onChange={(e) => setFilters({ search: e.target.value })}
-                      className="w-full h-14 pl-12 pr-4 glass-premium rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-lg placeholder:text-muted-foreground/20"
-                    />
-                  </div>
+                <div className="flex items-center bg-white/5 p-1 rounded-2xl border border-white/5">
+                  {['analysis', 'correlations', 'data'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab as any)}
+                      className={cn(
+                        "px-6 h-10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                        activeTab === tab ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {tab}
+                    </button>
+                  ))}
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => useStore.getState().setDataset([], { fileName: '', fileSize: 0 })}
-                    className="h-14 px-8 glass-premium text-muted-foreground rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-white transition-all active:scale-95"
-                  >
-                    Reset
-                  </button>
-                </div>
+                <button
+                  onClick={() => useStore.getState().setDataset([], { fileName: '', fileSize: 0 })}
+                  className="h-12 px-6 glass-premium text-muted-foreground rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-white transition-all active:scale-95"
+                >
+                  Reset Corpus
+                </button>
               </header>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                <div className="lg:col-span-8 space-y-8">
-                  <StatisticalCards />
-                  <AnalyticalVisualizer />
-                  <AlchemyTools />
+                <div className="lg:col-span-8 space-y-8 min-h-[600px]">
+                  {activeTab === 'analysis' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+                      <StatisticalCards />
+                      <AnalyticalVisualizer />
+                      <AlchemyTools />
+                    </motion.div>
+                  )}
+                  {activeTab === 'correlations' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                      <CorrelationHeatmap />
+                    </motion.div>
+                  )}
+                  {activeTab === 'data' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-premium rounded-[2.5rem] overflow-hidden min-h-[700px] shadow-2xl relative">
+                      <header className="p-6 border-b border-white/5 flex items-center justify-between">
+                        <h3 className="text-xs font-black uppercase tracking-widest opacity-60">Observation Payload</h3>
+                        <div className="flex items-center gap-4">
+                          <div className="relative group">
+                            <LuSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40" size={14} />
+                            <input
+                              type="text"
+                              placeholder="Search payload..."
+                              value={filters.search}
+                              onChange={(e) => setFilters({ search: e.target.value })}
+                              className="h-10 pl-10 pr-4 bg-white/5 rounded-xl border border-white/5 focus:border-primary/50 outline-none text-xs w-48 transition-all"
+                            />
+                          </div>
+                        </div>
+                      </header>
+                      <VirtualizedTable />
+                    </motion.div>
+                  )}
                 </div>
 
-                <div className="lg:col-span-4 h-[calc(100vh-14rem)] sticky top-32 space-y-8 flex flex-col">
-                  <div className="glass-premium p-6 rounded-[2rem] flex-1 overflow-hidden">
+                <div className="lg:col-span-4 lg:sticky lg:top-32 space-y-8 flex flex-col">
+                  <div className="glass-premium p-6 rounded-[2rem] flex flex-col gap-8">
                     <InsightPanel />
+                    <div className="h-[1px] bg-white/5 w-full" />
+                    <QualityMetrics />
                   </div>
                 </div>
               </div>
-
-              <section className="animate-in slide-in-from-bottom duration-700 pt-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Raw Observation Grid</h3>
-                </div>
-                <div className="glass-premium rounded-[2.5rem] overflow-hidden min-h-[600px] shadow-2xl relative">
-                  <VirtualizedTable />
-                </div>
-              </section>
             </div>
           </motion.main>
         )}

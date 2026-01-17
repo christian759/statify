@@ -15,21 +15,29 @@ const detectColumnType = (values: any[]): ColumnType => {
     return 'string';
 };
 
-const calculateStats = (data: DataRow[]): { columns: ColumnMetadata[]; stats: DatasetStats } => {
-    if (data.length === 0) return { columns: [], stats: { rowCount: 0, columnCount: 0 } };
+const calculateStats = (data: DataRow[]): { columns: ColumnMetadata[]; stats: DatasetStats; correlations: Record<string, Record<string, number>> } => {
+    if (data.length === 0) return { columns: [], stats: { rowCount: 0, columnCount: 0 }, correlations: {} };
 
     const keys = Object.keys(data[0]);
+    const numericCols: string[] = [];
+
     const columns: ColumnMetadata[] = keys.map(key => {
         const values = data.map(row => row[key]);
         const type = detectColumnType(values);
         const nonNullValues = values.filter(v => v !== null && v !== undefined && v !== '');
+
+        let qualityScore = 100;
 
         const stats: ColumnMetadata['stats'] = {
             missingCount: data.length - nonNullValues.length,
             uniqueCount: new Set(values).size,
         };
 
+        const missingPercent = (stats.missingCount / data.length) * 100;
+        qualityScore -= missingPercent * 0.8;
+
         if (type === 'numeric') {
+            numericCols.push(key);
             const numericValues = nonNullValues.map(v => Number(v));
             stats.min = Math.min(...numericValues);
             stats.max = Math.max(...numericValues);
@@ -41,8 +49,25 @@ const calculateStats = (data: DataRow[]): { columns: ColumnMetadata[]; stats: Da
 
             const mean = stats.mean;
             stats.stdDev = Math.sqrt(numericValues.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / numericValues.length);
+
+            // Outlier Detection (IQR)
+            const q1 = sorted[Math.floor(sorted.length * 0.25)];
+            const q3 = sorted[Math.floor(sorted.length * 0.75)];
+            const iqr = q3 - q1;
+            const lowerBound = q1 - 1.5 * iqr;
+            const upperBound = q3 + 1.5 * iqr;
+            const outliers = numericValues.filter(v => v < lowerBound || v > upperBound);
+            stats.outlierCount = outliers.length;
+
+            const outlierPercent = (outliers.length / numericValues.length) * 100;
+            qualityScore -= outlierPercent * 0.5;
+
+            // Skewness (Simplified Pearson second)
+            stats.skewness = stats.stdDev !== 0 ? (3 * (stats.mean - stats.median)) / stats.stdDev : 0;
+
+            // Quality penalty for skewness
+            if (Math.abs(stats.skewness) > 1) qualityScore -= 5;
         } else {
-            // Categorical/String frequency analysis
             const frequencies: Record<string, number> = {};
             nonNullValues.forEach(v => {
                 const s = String(v);
@@ -51,15 +76,51 @@ const calculateStats = (data: DataRow[]): { columns: ColumnMetadata[]; stats: Da
             stats.frequencies = Object.fromEntries(
                 Object.entries(frequencies)
                     .sort(([, a], [, b]) => b - a)
-                    .slice(0, 10) // Top 10 frequencies
+                    .slice(0, 10)
             );
         }
 
-        return { id: key, type, stats };
+        return { id: key, type, stats, qualityScore: Math.max(0, Math.min(100, qualityScore)) };
+    });
+
+    // Correlation Matrix (Pearson)
+    const correlations: Record<string, Record<string, number>> = {};
+    numericCols.forEach(colA => {
+        correlations[colA] = {};
+        numericCols.forEach(colB => {
+            if (colA === colB) {
+                correlations[colA][colB] = 1;
+                return;
+            }
+
+            const activeRows = data.filter(r =>
+                r[colA] !== null && r[colA] !== undefined && r[colA] !== '' &&
+                r[colB] !== null && r[colB] !== undefined && r[colB] !== ''
+            );
+
+            if (activeRows.length < 2) {
+                correlations[colA][colB] = 0;
+                return;
+            }
+
+            const valA = activeRows.map(r => Number(r[colA]));
+            const valB = activeRows.map(r => Number(r[colB]));
+            const meanA = valA.reduce((a, b) => a + b, 0) / valA.length;
+            const meanB = valB.reduce((a, b) => a + b, 0) / valB.length;
+
+            const num = valA.reduce((acc, v, i) => acc + (v - meanA) * (valB[i] - meanB), 0);
+            const den = Math.sqrt(
+                valA.reduce((acc, v) => acc + Math.pow(v - meanA, 2), 0) *
+                valB.reduce((acc, v) => acc + Math.pow(v - meanB, 2), 0)
+            );
+
+            correlations[colA][colB] = den !== 0 ? num / den : 0;
+        });
     });
 
     return {
         columns,
+        correlations,
         stats: {
             rowCount: data.length,
             columnCount: keys.length,
@@ -78,6 +139,7 @@ export const useStore = create<AppState>()(
             data: [],
             filteredData: [],
             columns: [],
+            correlations: {},
             stats: { rowCount: 0, columnCount: 0 },
             filters: initialFilters,
             insights: [],
@@ -86,6 +148,7 @@ export const useStore = create<AppState>()(
             theme: 'light',
             rowSelection: {},
             activeAnalysisColumn: undefined,
+            activeTab: 'analysis',
             tableConfig: {
                 sorting: [],
                 columnVisibility: {},
@@ -93,17 +156,20 @@ export const useStore = create<AppState>()(
                 columnPinning: {},
             },
 
+            setActiveTab: (tab: 'analysis' | 'correlations' | 'data') => set({ activeTab: tab }),
+
             setDataset: (data: DataRow[], metadata: { fileName: string; fileSize: number }) => {
-                const { columns, stats } = calculateStats(data);
+                const { columns, stats, correlations } = calculateStats(data);
                 set({
                     data,
                     filteredData: data,
                     columns,
+                    correlations,
                     stats: { ...stats, ...metadata },
                     isLoading: false,
-                    insights: [] // Reset insights on new dataset
+                    insights: []
                 });
-                get().generateInsights(); // Auto-generate on load
+                get().generateInsights();
             },
 
             setFilters: (newFilters: Partial<FilterState>) => {
@@ -163,7 +229,6 @@ export const useStore = create<AppState>()(
                     if (col.stats.frequencies) {
                         fillValue = Object.keys(col.stats.frequencies)[0];
                     } else {
-                        // Calc mode manually if frequencies missing
                         const counts: Record<any, number> = {};
                         nonNullValues.forEach((v: any) => counts[v] = (counts[v] || 0) + 1);
                         fillValue = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
@@ -175,18 +240,19 @@ export const useStore = create<AppState>()(
                     [columnId]: (row[columnId] === null || row[columnId] === undefined || row[columnId] === '') ? fillValue : row[columnId]
                 }));
 
-                const { columns: newCols, stats: newStats } = calculateStats(newData);
+                const { columns: newCols, stats: newStats, correlations: newCorrs } = calculateStats(newData);
                 set({
                     data: newData,
                     filteredData: newData,
                     columns: newCols,
+                    correlations: newCorrs,
                     stats: { ...newStats, fileName: stats.fileName, fileSize: stats.fileSize }
                 });
                 get().generateInsights();
             },
 
             generateInsights: () => {
-                const { data, columns, stats } = get();
+                const { data, columns, correlations } = get();
                 if (data.length === 0) return;
 
                 const insights: Insight[] = [];
@@ -203,7 +269,27 @@ export const useStore = create<AppState>()(
                     });
                 }
 
-                // 2. High Variance Insight
+                // 2. High Correlation Detection
+                const strongCorrs: string[] = [];
+                Object.entries(correlations).forEach(([colA, related]) => {
+                    Object.entries(related as Record<string, number>).forEach(([colB, r]) => {
+                        if (colA < colB && Math.abs(r as number) > 0.85) {
+                            strongCorrs.push(`${colA} & ${colB}`);
+                        }
+                    });
+                });
+
+                if (strongCorrs.length > 0) {
+                    insights.push({
+                        id: 'correlation-alert',
+                        type: 'info',
+                        title: 'Multicollinearity Detected',
+                        description: `Strong correlations found between ${strongCorrs.slice(0, 2).join(', ')}. These variables may provide redundant information.`,
+                        impact: 'medium'
+                    });
+                }
+
+                // 3. High Variance Insight
                 const highVarianceCols = columns.filter((c: ColumnMetadata) => c.type === 'numeric' && (c.stats.stdDev || 0) > (c.stats.mean || 1) * 2);
                 if (highVarianceCols.length > 0) {
                     insights.push({
@@ -215,15 +301,15 @@ export const useStore = create<AppState>()(
                     });
                 }
 
-                // 3. Unique Identifiers
-                const potentialIds = columns.filter((c: ColumnMetadata) => c.stats.uniqueCount === stats.rowCount);
-                if (potentialIds.length > 0) {
+                // 4. Quality Score Alert
+                const lowQualityCols = columns.filter((c: ColumnMetadata) => c.qualityScore < 70);
+                if (lowQualityCols.length > 0) {
                     insights.push({
-                        id: 'id-col',
-                        type: 'success',
-                        title: 'Identity Metadata',
-                        description: `Column "${potentialIds[0].id}" appears to be a unique identifier (ID). Statistical analysis on this column might be irrelevant.`,
-                        impact: 'low'
+                        id: 'low-quality',
+                        type: 'alert',
+                        title: 'Feature Quality Warning',
+                        description: `Features like ${lowQualityCols[0].id} have low scientific reliability scores. Rehabilitation recommended.`,
+                        impact: 'high'
                     });
                 }
 
@@ -233,11 +319,12 @@ export const useStore = create<AppState>()(
             dropColumn: (columnId: string) => {
                 const { data, stats } = get();
                 const newData = data.map(({ [columnId]: _, ...rest }: DataRow) => rest);
-                const { columns: newCols, stats: newStats } = calculateStats(newData);
+                const { columns: newCols, stats: newStats, correlations: newCorrs } = calculateStats(newData);
                 set({
                     data: newData,
                     filteredData: newData,
                     columns: newCols,
+                    correlations: newCorrs,
                     stats: { ...newStats, fileName: stats.fileName, fileSize: stats.fileSize }
                 });
                 get().generateInsights();

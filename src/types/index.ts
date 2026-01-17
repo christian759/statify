@@ -22,8 +22,12 @@ export interface ColumnMetadata {
         stdDev?: number;
         missingCount: number;
         uniqueCount: number;
+        outlierCount?: number;
+        skewness?: number;
+        kurtosis?: number;
         frequencies?: Record<string, number>; // For categorical
     };
+    qualityScore: number; // 0-100
 }
 
 export interface DataRow {
@@ -47,6 +51,7 @@ export interface AppState {
     data: DataRow[];
     filteredData: DataRow[];
     columns: ColumnMetadata[];
+    correlations: Record<string, Record<string, number>>;
     stats: DatasetStats;
     filters: FilterState;
     insights: Insight[];
@@ -71,6 +76,9 @@ export interface AppState {
     };
 
     // Actions
+    activeTab: 'analysis' | 'correlations' | 'data';
+    setActiveTab: (tab: 'analysis' | 'correlations' | 'data') => void;
+
     setDataset: (data: DataRow[], metadata: { fileName: string; fileSize: number }) => void;
     setFilters: (filters: Partial<FilterState>) => void;
     setTheme: (theme: 'light' | 'dark') => void;
