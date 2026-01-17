@@ -1,15 +1,18 @@
 import { useRef, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { BsCloudArrowUp, BsFileEarmarkSpreadsheet, BsCheckCircleFill, BsDatabase } from 'react-icons/bs';
+import { LuDatabase, LuUpload, LuCheck, LuFileJson, LuActivity } from 'react-icons/lu';
 import { cn } from '../utils/cn';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const DataUpload = () => {
-    const { setDataset } = useStore();
+    const { setDataset, data } = useStore();
     const [isDragging, setIsDragging] = useState(false);
     const [status, setStatus] = useState<'idle' | 'uploading' | 'success'>('idle');
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const hasData = data.length > 0;
 
     const processFile = (file: File) => {
         setStatus('uploading');
@@ -21,7 +24,8 @@ export const DataUpload = () => {
                     setTimeout(() => {
                         setDataset(results.data as any[], metadata);
                         setStatus('success');
-                    }, 1000);
+                        setTimeout(() => setStatus('idle'), 2000);
+                    }, 1200);
                 },
                 header: true,
                 skipEmptyLines: true,
@@ -38,103 +42,144 @@ export const DataUpload = () => {
                 setTimeout(() => {
                     setDataset(json as any[], metadata);
                     setStatus('success');
-                }, 1000);
+                    setTimeout(() => setStatus('idle'), 2000);
+                }, 1200);
             };
             reader.readAsArrayBuffer(file);
         }
     };
 
-    return (
-        <div className="p-8 glass-card rounded-3xl animate-in space-y-8 h-full flex flex-col">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 glass rounded-xl flex items-center justify-center text-primary">
-                        <BsDatabase size={20} />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-black tracking-tight tracking-tight">Data Input</h3>
-                        <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.1em]">Legacy & Cloud Import</p>
-                    </div>
-                </div>
-            </div>
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) processFile(file);
+    };
 
+    return (
+        <div className={cn(
+            "w-full transition-all duration-700 ease-out",
+            !hasData ? "max-w-2xl mx-auto pt-20" : "max-w-none"
+        )}>
             <div
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
-                onDrop={(e) => { e.preventDefault(); setIsDragging(false); const file = e.dataTransfer.files[0]; if (file) processFile(file); }}
+                onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
                 className={cn(
-                    "flex-1 border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center transition-all duration-500 cursor-pointer min-h-[300px]",
-                    isDragging ? "border-primary bg-primary/5 scale-[0.98]" : "border-white/5 hover:border-primary/30 hover:bg-white/[0.02] shadow-inner",
-                    status === 'success' && "border-emerald-500/30 bg-emerald-500/5 shadow-[0_0_50px_rgba(16,185,129,0.1)]"
+                    "relative group cursor-pointer overflow-hidden rounded-[2.5rem] transition-all duration-500",
+                    !hasData ? "p-16 glass-premium" : "p-6 glass-card",
+                    isDragging && "ring-2 ring-primary scale-[1.02] bg-primary/5",
+                    status === 'uploading' && "pointer-events-none"
                 )}
             >
+                {!hasData && (
+                    <div className="absolute inset-0 -z-10 bg-mesh opacity-50 group-hover:opacity-100 transition-opacity" />
+                )}
+
                 <input
                     type="file"
                     ref={fileInputRef}
-                    hidden
-                    accept=".csv,.xlsx,.xls"
                     onChange={(e) => e.target.files?.[0] && processFile(e.target.files[0])}
+                    accept=".csv,.xlsx,.xls"
+                    className="hidden"
                 />
 
-                {status === 'idle' && (
-                    <div className="text-center space-y-6 animate-in">
-                        <div className="w-20 h-20 rounded-3xl premium-gradient flex items-center justify-center mx-auto shadow-2xl shadow-indigo-500/30 group-hover:scale-110 transition-transform duration-500">
-                            <BsCloudArrowUp className="text-4xl text-white" />
-                        </div>
-                        <div className="space-y-2">
-                            <p className="text-lg font-black tracking-tight">Drop analytics segment</p>
-                            <p className="text-[10px] text-muted-foreground/60 uppercase font-black tracking-[0.1em] leading-relaxed max-w-[200px] mx-auto">
-                                Supports binary (.xlsx, .xls) and text segments (.csv) up to 1GB
+                <div className={cn(
+                    "flex flex-col items-center gap-8 text-center",
+                    hasData && "flex-row text-left gap-4"
+                )}>
+                    <AnimatePresence mode="wait">
+                        {status === 'idle' && (
+                            <motion.div
+                                key="idle"
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.8, opacity: 0 }}
+                                className={cn(
+                                    "rounded-3xl flex items-center justify-center transition-all duration-500",
+                                    !hasData
+                                        ? "w-28 h-28 premium-gradient text-white shadow-2xl shadow-primary/40 group-hover:rotate-6"
+                                        : "w-12 h-12 bg-primary/10 text-primary"
+                                )}
+                            >
+                                {!hasData ? <LuUpload size={48} /> : <LuUpload size={24} />}
+                            </motion.div>
+                        )}
+                        {status === 'uploading' && (
+                            <motion.div
+                                key="uploading"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="w-28 h-28 flex items-center justify-center"
+                            >
+                                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                            </motion.div>
+                        )}
+                        {status === 'success' && (
+                            <motion.div
+                                key="success"
+                                initial={{ scale: 0.5, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="w-28 h-28 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center"
+                            >
+                                <LuCheck size={56} />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <div className="space-y-4">
+                        <h3 className={cn(
+                            "font-black tracking-tight",
+                            !hasData ? "text-5xl" : "text-xl"
+                        )}>
+                            {status === 'uploading' ? 'Analyzing Dataset...' :
+                                status === 'success' ? 'Ready for Science' :
+                                    !hasData ? 'Drop your data' : 'Swap Dataset'}
+                        </h3>
+                        {!hasData && (
+                            <p className="text-muted-foreground font-medium text-xl max-w-sm mx-auto leading-relaxed">
+                                Upload your raw CSV or Excel payload to begin high-precision analysis.
                             </p>
-                        </div>
+                        )}
+                        {hasData && status === 'idle' && (
+                            <div className="flex items-center gap-3 text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">
+                                <span className="flex items-center gap-1.5"><LuFileJson /> CSV/XLSX</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                                <span>Fast Sync</span>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
 
-                {status === 'uploading' && (
-                    <div className="flex flex-col items-center space-y-6 animate-pulse">
-                        <div className="relative w-20 h-20">
-                            <div className="absolute inset-0 border-4 border-primary/20 rounded-full" />
-                            <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                        </div>
-                        <div className="text-center space-y-2">
-                            <p className="text-lg font-black tracking-tight">Deep Segment Scan</p>
-                            <p className="text-[10px] text-muted-foreground/60 uppercase font-black tracking-widest">Neural mapping in progress</p>
-                        </div>
-                    </div>
-                )}
-
-                {status === 'success' && (
-                    <div className="flex flex-col items-center space-y-6 animate-in zoom-in-95 duration-500 text-center">
-                        <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20 shadow-xl">
-                            <BsCheckCircleFill className="text-4xl" />
-                        </div>
-                        <div className="space-y-2">
-                            <p className="text-lg font-black tracking-tight text-emerald-500">Ingestion Complete</p>
-                            <p className="text-[10px] text-muted-foreground/60 uppercase font-black tracking-widest">Segments ready for visualization</p>
-                        </div>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setStatus('idle'); }}
-                            className="px-6 py-3 glass text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/5 rounded-2xl transition-all"
-                        >
-                            Import New Payload
-                        </button>
+                {!hasData && status === 'uploading' && (
+                    <div className="absolute bottom-0 left-0 w-full h-2 bg-white/5">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: '100%' }}
+                            transition={{ duration: 1.2 }}
+                            className="h-full premium-gradient"
+                        />
                     </div>
                 )}
             </div>
 
-            <div className="p-5 glass-card rounded-2xl border-none flex items-center gap-5 group hover:bg-white/[0.05] transition-all cursor-pointer">
-                <div className="w-12 h-12 glass rounded-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                    <BsFileEarmarkSpreadsheet size={22} />
+            {!hasData && (
+                <div className="mt-16 flex items-center justify-center gap-16 opacity-30 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+                    <div className="flex flex-col items-center gap-3">
+                        <LuActivity size={28} />
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Realtime Stats</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-3">
+                        <LuDatabase size={28} />
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Edge Process</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-3">
+                        <LuFileJson size={28} />
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Live Viz</span>
+                    </div>
                 </div>
-                <div className="flex-1">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Developer Assets</p>
-                    <p className="text-sm font-bold tracking-tight">Download Schema Template</p>
-                </div>
-                <button className="w-10 h-10 flex items-center justify-center glass rounded-xl hover:text-primary transition-all">
-                    →
-                </button>
-            </div>
+            )}
         </div>
     );
 };
