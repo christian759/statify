@@ -3,7 +3,6 @@ import {
     BarChart,
     Bar,
     XAxis,
-    YAxis,
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
@@ -12,25 +11,14 @@ import {
     Area
 } from 'recharts';
 import { LuActivity, LuWaves } from 'react-icons/lu';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const AnalyticalVisualizer = () => {
-    const { columns, activeAnalysisColumn, filteredData, theme } = useStore();
+    const { columns, activeAnalysisColumn, filteredData } = useStore();
 
     const activeCol = columns.find(c => c.id === activeAnalysisColumn);
 
-    if (!activeCol) {
-        return (
-            <div className="glass-card h-[400px] rounded-[2.5rem] flex flex-col items-center justify-center p-12 text-center space-y-4 border-dashed">
-                <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-muted-foreground/20">
-                    <LuWaves size={32} />
-                </div>
-                <div className="space-y-1">
-                    <p className="text-sm font-bold tracking-tight">Virtual Signal Lost</p>
-                    <p className="text-xs text-muted-foreground/60 uppercase font-black tracking-widest">Select a dimension from the grid to visualize distribution</p>
-                </div>
-            </div>
-        );
-    }
+    if (!activeCol) return null;
 
     // Prepare data for Histogram (Numeric) or Category Bar Chart
     let chartData: any[] = [];
@@ -63,92 +51,101 @@ export const AnalyticalVisualizer = () => {
     const isNumeric = activeCol.type === 'numeric';
 
     return (
-        <div className="glass-card p-10 rounded-[2.5rem] space-y-8 animate-in zoom-in-95 duration-700">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shadow-inner">
-                        {isNumeric ? <LuWaves size={24} /> : <LuActivity size={24} />}
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-black tracking-tight flex items-center gap-2 text-foreground">
-                            {activeCol.id} <span className="text-[10px] opacity-40 uppercase tracking-widest font-mono">Analysis</span>
-                        </h3>
-                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">
-                            {isNumeric ? 'Probability Density / Distribution' : 'Categorical Feature Frequency'}
-                        </p>
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="glass-premium p-10 rounded-[2.5rem] space-y-8 shadow-2xl"
+            >
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shadow-inner">
+                            {isNumeric ? <LuWaves size={24} /> : <LuActivity size={24} />}
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-black tracking-tight flex items-center gap-2 text-foreground">
+                                Distribution Analysis
+                            </h3>
+                            <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em]">
+                                Feature: {activeCol.id} • {activeCol.type}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="h-[350px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                    {isNumeric ? (
-                        <AreaChart data={chartData}>
-                            <defs>
-                                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme === 'dark' ? '#ffffff05' : '#00000005'} />
-                            <XAxis
-                                dataKey="label"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fontSize: 10, fill: '#888' }}
-                                dy={10}
-                            />
-                            <YAxis hide />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: theme === 'dark' ? '#0f172a' : '#fff',
-                                    border: 'none',
-                                    borderRadius: '16px',
-                                    boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold'
-                                }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="count"
-                                stroke="#6366f1"
-                                strokeWidth={4}
-                                fillOpacity={1}
-                                fill="url(#colorValue)"
-                                animationDuration={2000}
-                            />
-                        </AreaChart>
-                    ) : (
-                        <BarChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme === 'dark' ? '#ffffff05' : '#00000005'} />
-                            <XAxis
-                                dataKey="name"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fontSize: 10, fill: '#888' }}
-                                dy={10}
-                            />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888' }} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: theme === 'dark' ? '#0f172a' : '#fff',
-                                    border: 'none',
-                                    borderRadius: '16px',
-                                    boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold'
-                                }}
-                            />
-                            <Bar dataKey="value" radius={[8, 8, 0, 0]} animationDuration={1500}>
-                                {chartData.map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#6366f1' : '#818cf8'} />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    )}
-                </ResponsiveContainer>
-            </div>
-        </div>
+                <div className="h-[350px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        {isNumeric ? (
+                            <AreaChart data={chartData}>
+                                <defs>
+                                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                <XAxis
+                                    dataKey="label"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.3)', fontWeight: 700 }}
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                        borderRadius: '16px',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        backdropFilter: 'blur(12px)',
+                                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+                                    }}
+                                    itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 700 }}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="count"
+                                    stroke="var(--color-primary)"
+                                    strokeWidth={4}
+                                    fillOpacity={1}
+                                    fill="url(#colorCount)"
+                                    animationDuration={1500}
+                                />
+                            </AreaChart>
+                        ) : (
+                            <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                <XAxis
+                                    dataKey="name"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.3)', fontWeight: 700 }}
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                        borderRadius: '16px',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        backdropFilter: 'blur(12px)'
+                                    }}
+                                />
+                                <Bar dataKey="value" radius={[10, 10, 10, 10]} animationDuration={1500}>
+                                    {chartData.map((_entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={`url(#premiumGradient-${index})`} />
+                                    ))}
+                                </Bar>
+                                <defs>
+                                    {chartData.map((_entry, index) => (
+                                        <linearGradient key={`premiumGradient-${index}`} id={`premiumGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="var(--color-primary)" />
+                                            <stop offset="100%" stopColor="#ec4899" />
+                                        </linearGradient>
+                                    ))}
+                                </defs>
+                            </BarChart>
+                        )}
+                    </ResponsiveContainer>
+                </div>
+            </motion.div>
+        </AnimatePresence>
     );
 };

@@ -1,5 +1,5 @@
 import { useStore } from '../store/useStore';
-import { LuDatabase, LuTable, LuActivity, LuInfo, LuTarget } from 'react-icons/lu';
+import { LuTable, LuActivity, LuInfo, LuTarget } from 'react-icons/lu';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const StatisticalCards = () => {
