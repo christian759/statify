@@ -139,10 +139,10 @@ export const VirtualizedTable = () => {
                 className="flex-1 overflow-auto relative scrollbar-premium"
                 style={{ height: '500px' }}
             >
-                <table className="w-full border-collapse">
-                    <thead className="sticky top-0 z-30">
+                <table className="border-collapse" style={{ width: table.getTotalSize() }}>
+                    <thead className="sticky top-0 z-30 bg-[#020617]">
                         {table.getHeaderGroups().map(headerGroup => (
-                            <tr key={headerGroup.id}>
+                            <tr key={headerGroup.id} className="flex w-full">
                                 {headerGroup.headers.map(header => {
                                     const isPinned = header.column.getIsPinned();
                                     return (
@@ -154,12 +154,12 @@ export const VirtualizedTable = () => {
                                                 right: isPinned === 'right' ? header.column.getAfter('right') : undefined,
                                             }}
                                             className={cn(
-                                                "px-6 py-4 text-left text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] glass border-none z-10",
-                                                isPinned && "sticky z-40"
+                                                "px-6 py-4 text-left text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] border-b border-white/5 relative flex items-center bg-[#020617]",
+                                                isPinned && "sticky z-40 bg-[#020617] border-r border-white/5"
                                             )}
                                         >
                                             <div
-                                                className="flex items-center gap-2 cursor-pointer select-none group/header"
+                                                className="flex items-center gap-2 cursor-pointer select-none group/header w-full"
                                                 onClick={() => {
                                                     header.column.getToggleSortingHandler()?.(null);
                                                     setActiveColumn(header.id);
@@ -192,6 +192,7 @@ export const VirtualizedTable = () => {
                         style={{
                             height: `${rowVirtualizer.getTotalSize()}px`,
                             position: 'relative',
+                            display: 'block'
                         }}
                     >
                         {rowVirtualizer.getVirtualItems().map(virtualRow => {
@@ -202,8 +203,8 @@ export const VirtualizedTable = () => {
                                 <tr
                                     key={row.id}
                                     className={cn(
-                                        "absolute w-full flex items-center border-b border-white/5 transition-all hover:bg-slate-100/50 dark:hover:bg-white/[0.02] cursor-pointer group/row",
-                                        row.getIsSelected() && "bg-primary/[0.02]"
+                                        "absolute w-full flex items-center border-b border-white/5 transition-all hover:bg-white/[0.02] cursor-pointer group/row",
+                                        row.getIsSelected() && "bg-primary/[0.05]"
                                     )}
                                     style={{
                                         height: `${virtualRow.size}px`,
@@ -221,8 +222,8 @@ export const VirtualizedTable = () => {
                                                     right: isPinned === 'right' ? cell.column.getAfter('right') : undefined,
                                                 }}
                                                 className={cn(
-                                                    "px-6 py-4 flex items-center overflow-hidden h-full",
-                                                    isPinned && "sticky z-20 bg-inherit border-r border-white/5"
+                                                    "px-6 py-4 flex items-center overflow-hidden h-full whitespace-nowrap text-xs text-muted-foreground",
+                                                    isPinned && "sticky z-20 bg-[#020617] border-r border-white/5"
                                                 )}
                                             >
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}

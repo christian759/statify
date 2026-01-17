@@ -5,34 +5,24 @@ import { AnalyticalVisualizer } from './components/AnalyticalVisualizer';
 import { VirtualizedTable } from './components/VirtualizedTable';
 import { DataUpload } from './components/DataUpload';
 import { cn } from './utils/cn';
-import { LuTerminal, LuSearch } from 'react-icons/lu';
+import { LuSun, LuMoon, LuSearch, LuDatabase, LuActivity, LuTerminal } from 'react-icons/lu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ColumnSidebar } from './components/ColumnSidebar';
-<<<<<<< HEAD
-import { ChartExplorer } from './components/ChartExplorer';
-=======
 import { AlchemyTools } from './components/AlchemyTools';
->>>>>>> parent of b4fd178 (feat: introduce core application UI with data analysis components and a data mining utility file.)
 import { InsightPanel } from './components/InsightPanel';
 import { QualityMetrics } from './components/QualityMetrics';
-import { CorrelationHeatmap } from './components/CorrelationHeatmap';
 import { DataMiningLab } from './components/DataMiningLab';
-import { TopNavigation } from './components/TopNavigation';
 
 const App = () => {
-  const { theme, hasData, setDataset, activeTab, filters, setFilters } = useStore(state => ({
-    theme: state.theme,
-    hasData: state.data.length > 0,
-    setDataset: state.setDataset,
-    activeTab: state.activeTab,
-    filters: state.filters,
-    setFilters: state.setFilters
-  }));
+  const { theme, isLoading, filters, setFilters, data, stats, setDataset, activeTab, setActiveTab } = useStore();
+  const hasData = data.length > 0;
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'dark') root.classList.add('dark');
-    else root.classList.remove('dark');
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [theme]);
 
   const loadSampleData = () => {
@@ -49,6 +39,17 @@ const App = () => {
     setDataset(sample, { fileName: 'workforce_precision_01.csv', fileSize: 4520 });
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-950">
+        <div className="text-center space-y-6">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto shadow-lg shadow-primary/20" />
+          <h2 className="text-xl font-black tracking-tight text-white">Initializing Engine</h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn(
       "min-h-screen transition-all duration-700 bg-background text-foreground selection:bg-primary/30",
@@ -59,16 +60,33 @@ const App = () => {
         <div className="bg-mesh absolute inset-0 opacity-50" />
       </div>
 
+      <nav className="fixed top-0 left-0 w-full z-50 p-6 flex items-center justify-between pointer-events-none">
+        <div className="flex items-center gap-3 pointer-events-auto group">
+          <div className="w-10 h-10 rounded-xl premium-gradient flex items-center justify-center text-white shadow-lg shadow-primary/20 transition-transform group-hover:rotate-12">
+            <LuDatabase size={20} />
+          </div>
+          <span className="text-xl font-black tracking-tighter">Statify <span className="text-primary">Pro</span></span>
+        </div>
+
+        <div className="flex items-center gap-3 pointer-events-auto">
+          <button
+            onClick={() => useStore.getState().setTheme(theme === 'light' ? 'dark' : 'light')}
+            className="p-3 w-12 h-12 rounded-2xl glass-premium flex items-center justify-center transition-all active:scale-95"
+          >
+            {theme === 'light' ? <LuMoon size={20} /> : <LuSun size={20} />}
+          </button>
+        </div>
+      </nav>
+
       <AnimatePresence mode="wait">
         {!hasData ? (
           <motion.main
             key="landing"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6 max-w-4xl mx-auto"
           >
-            {/* Landing Page Content */}
             <div className="text-center space-y-4 mb-12">
               <motion.div
                 className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-premium text-[10px] font-black uppercase tracking-[0.3em] text-primary"
@@ -84,6 +102,7 @@ const App = () => {
               </p>
             </div>
             <DataUpload />
+
             <button
               onClick={loadSampleData}
               className="mt-8 text-xs font-black uppercase tracking-widest text-muted-foreground/30 hover:text-primary transition-colors flex items-center gap-2 group"
@@ -97,68 +116,71 @@ const App = () => {
             key="workbench"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="relative z-10 w-full min-h-screen pt-16" // pt-16 for TopNav
+            className="relative z-10 w-full min-h-screen flex"
           >
-            <TopNavigation />
+            {/* Sidebar remains stable */}
+            <aside className="w-72 h-screen sticky top-0 border-r border-white/5 bg-background/50 backdrop-blur-3xl p-6 pt-24 hidden xl:block">
+              <ColumnSidebar />
+            </aside>
 
-            <div className="flex h-[calc(100vh-4rem)]">
-              {/* Sidebar - Only visible in Analysis tab for now or always? Let's keep it but make it sleek. */}
-              {/* The user said "remove clustered stiff". Maybe hide sidebar in other tabs. */}
-              {activeTab === 'analysis' && (
-                <aside className="w-64 h-full border-r border-white/5 bg-background/50 backdrop-blur-3xl p-4 hidden xl:block overflow-hidden">
-                  <ColumnSidebar />
-                </aside>
-              )}
+            {/* Main Workspace Area */}
+            <div className="flex-1 min-w-0 flex flex-col pt-24 pb-12 px-8 lg:px-12 space-y-8">
+              <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <LuActivity className="text-primary" size={24} />
+                    <h2 className="text-3xl font-black">Workspace</h2>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                      <span className="text-[10px] font-black uppercase tracking-wider opacity-60">Source:</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-primary">{stats.fileName}</span>
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider opacity-30">//</span>
+                    <span className="text-[10px] font-black uppercase tracking-wider opacity-60">{data.length.toLocaleString()} Observations</span>
+                  </div>
+                </div>
 
-              {/* Main Content Area */}
-              <div className="flex-1 overflow-y-auto scrollbar-premium p-6 lg:p-8">
-                <div className="max-w-[1920px] mx-auto space-y-8">
-
-                  {activeTab === 'analysis' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="grid grid-cols-1 xl:grid-cols-12 gap-6"
+                <div className="flex items-center bg-white/5 p-1 rounded-2xl border border-white/5">
+                  {['analysis', 'correlations', 'data'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab as any)}
+                      className={cn(
+                        "px-6 h-10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                        activeTab === tab ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" : "text-muted-foreground hover:text-foreground"
+                      )}
                     >
-                      {/* Row 1: Summary Cards */}
-                      <div className="xl:col-span-12">
-                        <StatisticalCards />
-                      </div>
+                      {tab}
+                    </button>
+                  ))}
+                </div>
 
-                      {/* Row 2: Insight Panel + Visualizer */}
-                      <div className="xl:col-span-4 space-y-6">
-                        <InsightPanel />
-                        <QualityMetrics />
-                      </div>
-                      <div className="xl:col-span-8">
-                        <AnalyticalVisualizer />
-                      </div>
+                <button
+                  onClick={() => useStore.getState().setDataset([], { fileName: '', fileSize: 0 })}
+                  className="h-12 px-6 glass-premium text-muted-foreground rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-white transition-all active:scale-95"
+                >
+                  Reset Corpus
+                </button>
+              </header>
 
-                      {/* Row 3: Advanced Mining */}
-                      <div className="xl:col-span-12">
-                        <DataMiningLab />
-                      </div>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-8 space-y-8 min-h-[600px]">
+                  {activeTab === 'analysis' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+                      <StatisticalCards />
+                      <AnalyticalVisualizer />
+                      <DataMiningLab />
                     </motion.div>
                   )}
-
                   {activeTab === 'correlations' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="space-y-8"
-                    >
-                      <ChartExplorer />
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                       <CorrelationHeatmap />
                     </motion.div>
                   )}
-
                   {activeTab === 'data' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="glass-premium rounded-[2.5rem] overflow-hidden min-h-[700px] shadow-2xl relative flex flex-col"
-                    >
-                      <header className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-premium rounded-[2.5rem] overflow-hidden min-h-[700px] shadow-2xl relative">
+                      <header className="p-6 border-b border-white/5 flex items-center justify-between">
                         <h3 className="text-xs font-black uppercase tracking-widest opacity-60">Observation Payload</h3>
                         <div className="flex items-center gap-4">
                           <div className="relative group">
@@ -173,11 +195,17 @@ const App = () => {
                           </div>
                         </div>
                       </header>
-                      <div className="flex-1 min-h-0">
-                        <VirtualizedTable />
-                      </div>
+                      <VirtualizedTable />
                     </motion.div>
                   )}
+                </div>
+
+                <div className="lg:col-span-4 lg:sticky lg:top-32 space-y-8 flex flex-col">
+                  <div className="glass-premium p-6 rounded-[2rem] flex flex-col gap-8">
+                    <InsightPanel />
+                    <div className="h-[1px] bg-white/5 w-full" />
+                    <QualityMetrics />
+                  </div>
                 </div>
               </div>
             </div>
