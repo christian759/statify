@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { AppState, DataRow, FilterState, ColumnMetadata, ColumnType, DatasetStats } from '../types';
+import type { AppState, DataRow, FilterState, ColumnMetadata, ColumnType, DatasetStats, Insight } from '../types';
 
 const detectColumnType = (values: any[]): ColumnType => {
     const nonNullValues = values.filter(v => v !== null && v !== undefined && v !== '');
@@ -80,6 +80,8 @@ export const useStore = create<AppState>()(
             columns: [],
             stats: { rowCount: 0, columnCount: 0 },
             filters: initialFilters,
+            insights: [],
+            isAnalyzing: false,
             isLoading: false,
             theme: 'light',
             rowSelection: {},
@@ -98,8 +100,10 @@ export const useStore = create<AppState>()(
                     filteredData: data,
                     columns,
                     stats: { ...stats, ...metadata },
-                    isLoading: false
+                    isLoading: false,
+                    insights: [] // Reset insights on new dataset
                 });
+                get().generateInsights(); // Auto-generate on load
             },
 
             setFilters: (newFilters: Partial<FilterState>) => {
@@ -139,6 +143,105 @@ export const useStore = create<AppState>()(
             })),
 
             setActiveColumn: (columnId: string | undefined) => set({ activeAnalysisColumn: columnId }),
+
+            // Pro Actions
+            imputeMissing: (columnId: string, strategy: 'mean' | 'median' | 'mode' | 'zero') => {
+                const { data, columns, stats } = get();
+                const col = columns.find((c: ColumnMetadata) => c.id === columnId);
+                if (!col) return;
+
+                let fillValue: any;
+                const nonNullValues = data.map((r: DataRow) => r[columnId]).filter((v: any) => v !== null && v !== undefined && v !== '');
+
+                if (strategy === 'zero') {
+                    fillValue = 0;
+                } else if (strategy === 'mean' && col.type === 'numeric') {
+                    fillValue = col.stats.mean;
+                } else if (strategy === 'median' && col.type === 'numeric') {
+                    fillValue = col.stats.median;
+                } else if (strategy === 'mode') {
+                    if (col.stats.frequencies) {
+                        fillValue = Object.keys(col.stats.frequencies)[0];
+                    } else {
+                        // Calc mode manually if frequencies missing
+                        const counts: Record<any, number> = {};
+                        nonNullValues.forEach((v: any) => counts[v] = (counts[v] || 0) + 1);
+                        fillValue = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
+                    }
+                }
+
+                const newData = data.map((row: DataRow) => ({
+                    ...row,
+                    [columnId]: (row[columnId] === null || row[columnId] === undefined || row[columnId] === '') ? fillValue : row[columnId]
+                }));
+
+                const { columns: newCols, stats: newStats } = calculateStats(newData);
+                set({
+                    data: newData,
+                    filteredData: newData,
+                    columns: newCols,
+                    stats: { ...newStats, fileName: stats.fileName, fileSize: stats.fileSize }
+                });
+                get().generateInsights();
+            },
+
+            generateInsights: () => {
+                const { data, columns, stats } = get();
+                if (data.length === 0) return;
+
+                const insights: Insight[] = [];
+
+                // 1. Missing Values Insight
+                const columnsWithMissing = columns.filter((c: ColumnMetadata) => c.stats.missingCount > 0);
+                if (columnsWithMissing.length > 0) {
+                    insights.push({
+                        id: 'missing-values',
+                        type: 'warning',
+                        title: 'Data Integrity Alert',
+                        description: `${columnsWithMissing.length} columns contain missing values. Consider using the Imputation tool to clean your dataset.`,
+                        impact: 'high'
+                    });
+                }
+
+                // 2. High Variance Insight
+                const highVarianceCols = columns.filter((c: ColumnMetadata) => c.type === 'numeric' && (c.stats.stdDev || 0) > (c.stats.mean || 1) * 2);
+                if (highVarianceCols.length > 0) {
+                    insights.push({
+                        id: 'high-variance',
+                        type: 'info',
+                        title: 'High Dispersion Detected',
+                        description: `Significant variance found in ${highVarianceCols[0].id}. This might indicate outliers or extreme data distribution.`,
+                        impact: 'medium'
+                    });
+                }
+
+                // 3. Unique Identifiers
+                const potentialIds = columns.filter((c: ColumnMetadata) => c.stats.uniqueCount === stats.rowCount);
+                if (potentialIds.length > 0) {
+                    insights.push({
+                        id: 'id-col',
+                        type: 'success',
+                        title: 'Identity Metadata',
+                        description: `Column "${potentialIds[0].id}" appears to be a unique identifier (ID). Statistical analysis on this column might be irrelevant.`,
+                        impact: 'low'
+                    });
+                }
+
+                set({ insights });
+            },
+
+            dropColumn: (columnId: string) => {
+                const { data, stats } = get();
+                const newData = data.map(({ [columnId]: _, ...rest }: DataRow) => rest);
+                const { columns: newCols, stats: newStats } = calculateStats(newData);
+                set({
+                    data: newData,
+                    filteredData: newData,
+                    columns: newCols,
+                    stats: { ...newStats, fileName: stats.fileName, fileSize: stats.fileSize }
+                });
+                get().generateInsights();
+            },
         }),
         {
             name: 'statify-data-science-storage',

@@ -2,6 +2,15 @@ import type { SortingState, VisibilityState, ColumnOrderState, RowSelectionState
 
 export type ColumnType = 'numeric' | 'categorical' | 'string' | 'date';
 
+export interface Insight {
+    id: string;
+    type: 'info' | 'warning' | 'success' | 'alert';
+    title: string;
+    description: string;
+    impact: 'high' | 'medium' | 'low';
+}
+
+
 export interface ColumnMetadata {
     id: string;
     type: ColumnType;
@@ -40,6 +49,9 @@ export interface AppState {
     columns: ColumnMetadata[];
     stats: DatasetStats;
     filters: FilterState;
+    insights: Insight[];
+    isAnalyzing: boolean;
+
 
     // UI State
     isLoading: boolean;
@@ -65,4 +77,9 @@ export interface AppState {
     setRowSelection: (updater: any) => void;
     setTableConfig: (config: any) => void;
     setActiveColumn: (columnId: string | undefined) => void;
+
+    // Pro Actions
+    imputeMissing: (columnId: string, strategy: 'mean' | 'median' | 'mode' | 'zero') => void;
+    generateInsights: () => void;
+    dropColumn: (columnId: string) => void;
 }
