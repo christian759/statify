@@ -175,7 +175,7 @@ export const useStore = create<AppState>()(
 
             setDataset: (data: DataRow[], metadata: { fileName: string; fileSize: number }) => {
                 const { columns, stats, correlations } = calculateStats(data);
-                set({
+                set(() => ({
                     data,
                     filteredData: data,
                     columns,
@@ -183,7 +183,7 @@ export const useStore = create<AppState>()(
                     stats: { ...stats, ...metadata },
                     isLoading: false,
                     insights: []
-                });
+                }));
                 get().generateInsights();
             },
 
@@ -256,13 +256,13 @@ export const useStore = create<AppState>()(
                 }));
 
                 const { columns: newCols, stats: newStats, correlations: newCorrs } = calculateStats(newData);
-                set({
+                set((state: AppState) => ({
                     data: newData,
                     filteredData: newData,
                     columns: newCols,
                     correlations: newCorrs,
-                    stats: { ...newStats, fileName: stats.fileName, fileSize: stats.fileSize }
-                });
+                    stats: { ...newStats, fileName: state.stats.fileName, fileSize: state.stats.fileSize }
+                }));
                 get().generateInsights();
             },
 
@@ -294,13 +294,13 @@ export const useStore = create<AppState>()(
                 });
 
                 const { columns: newCols, stats: newStats, correlations: newCorrs } = calculateStats(newData);
-                set({
+                set((state: AppState) => ({
                     data: newData,
                     filteredData: newData,
                     columns: newCols,
                     correlations: newCorrs,
-                    stats: { ...newStats, fileName: stats.fileName, fileSize: stats.fileSize }
-                });
+                    stats: { ...newStats, fileName: state.stats.fileName, fileSize: state.stats.fileSize }
+                }));
                 get().generateInsights();
             },
 
@@ -366,20 +366,20 @@ export const useStore = create<AppState>()(
                     });
                 }
 
-                set({ insights });
+                set(() => ({ insights }));
             },
 
             dropColumn: (columnId: string) => {
                 const { data, stats } = get();
                 const newData = data.map(({ [columnId]: _, ...rest }: DataRow) => rest);
                 const { columns: newCols, stats: newStats, correlations: newCorrs } = calculateStats(newData);
-                set({
+                set((state: AppState) => ({
                     data: newData,
                     filteredData: newData,
                     columns: newCols,
                     correlations: newCorrs,
-                    stats: { ...newStats, fileName: stats.fileName, fileSize: stats.fileSize }
-                });
+                    stats: { ...newStats, fileName: state.stats.fileName, fileSize: state.stats.fileSize }
+                }));
                 get().generateInsights();
             },
         }),
