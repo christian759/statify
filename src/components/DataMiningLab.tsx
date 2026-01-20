@@ -79,11 +79,7 @@ export const DataMiningLab = () => {
         if (!result) return null;
 
         // Map back to plot data
-        const validUnfilteredIdx = 0; // Simplified for now since kMeans returns packed arrays. 
-        // Actually mining.ts kMeans filters out null rows only for the vectors.
-        // We need to re-map carefully.
-
-        // Let's just create a new dataset for the chart from result
+        // We need to re-scan data to match the filtered logic in mining.ts
         const chartPoints = [];
         const { assignments, centroids } = result;
 

@@ -1,5 +1,5 @@
 import { useStore } from '../store/useStore';
-import { LuLightbulb, LuWaves, LuCircleAlert, LuActivity } from 'react-icons/lu';
+import { LuLightbulb, LuCircleAlert, LuActivity } from 'react-icons/lu';
 import { cn } from '../utils/cn';
 
 export const InsightPanel = () => {

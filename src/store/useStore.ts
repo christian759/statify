@@ -150,7 +150,7 @@ const initialFilters: FilterState = {
 
 export const useStore = create<AppState>()(
     persist(
-        (set, get) => ({
+        (set, get: () => AppState) => ({
             data: [],
             filteredData: [],
             columns: [],
@@ -268,16 +268,16 @@ export const useStore = create<AppState>()(
 
             transformColumn: (columnId: string, transformation: 'log' | 'normalize' | 'standardize') => {
                 const { data, columns, stats } = get();
-                const col = columns.find(c => c.id === columnId);
+                const col = columns.find((c: ColumnMetadata) => c.id === columnId);
                 if (!col || col.type !== 'numeric') return;
 
                 const values = data.map(r => Number(r[columnId])).filter(v => !isNaN(v));
                 const min = Math.min(...values);
                 const max = Math.max(...values);
                 const mean = values.reduce((a, b) => a + b, 0) / values.length;
-                const stdDev = Math.sqrt(values.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / values.length);
+                const stdDev = Math.sqrt(values.reduce((sq: number, n: number) => sq + Math.pow(n - mean, 2), 0) / values.length);
 
-                const newData = data.map(row => {
+                const newData = data.map((row: DataRow) => {
                     const val = Number(row[columnId]);
                     if (isNaN(val)) return row;
 
