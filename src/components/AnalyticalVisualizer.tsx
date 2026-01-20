@@ -9,7 +9,6 @@ import {
     Cell,
     AreaChart,
     Area,
-    Legend,
     LabelList,
 } from 'recharts';
 import { LuActivity, LuWaves } from 'react-icons/lu';
