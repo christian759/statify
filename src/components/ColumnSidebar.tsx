@@ -1,6 +1,6 @@
 import { useStore } from '../store/useStore';
 import { cn } from '../utils/cn';
-import { LuTrash2, LuActivity, LuCircleAlert, LuBinary, LuCalendar } from 'react-icons/lu';
+import { LuTrash2, LuActivity, LuBinary, LuCalendar } from 'react-icons/lu';
 import { motion } from 'framer-motion';
 
 export const ColumnSidebar = () => {

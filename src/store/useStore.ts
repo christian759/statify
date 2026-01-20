@@ -227,7 +227,7 @@ export const useStore = create<AppState>()(
 
             // Pro Actions
             imputeMissing: (columnId: string, strategy: 'mean' | 'median' | 'mode' | 'zero') => {
-                const { data, columns, stats } = get();
+                const { data, columns } = get();
                 const col = columns.find((c: ColumnMetadata) => c.id === columnId);
                 if (!col) return;
 
@@ -267,7 +267,7 @@ export const useStore = create<AppState>()(
             },
 
             transformColumn: (columnId: string, transformation: 'log' | 'normalize' | 'standardize') => {
-                const { data, columns, stats } = get();
+                const { data, columns } = get();
                 const col = columns.find((c: ColumnMetadata) => c.id === columnId);
                 if (!col || col.type !== 'numeric') return;
 
@@ -370,7 +370,7 @@ export const useStore = create<AppState>()(
             },
 
             dropColumn: (columnId: string) => {
-                const { data, stats } = get();
+                const { data } = get();
                 const newData = data.map(({ [columnId]: _, ...rest }: DataRow) => rest);
                 const { columns: newCols, stats: newStats, correlations: newCorrs } = calculateStats(newData);
                 set((state: AppState) => ({

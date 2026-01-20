@@ -10,11 +10,10 @@ import {
     Tooltip,
     ResponsiveContainer,
     Line,
-    ComposedChart,
-    Legend
+    ComposedChart
 } from 'recharts';
 import { LuBrainCircuit, LuShare2, LuTrendingUp, LuBinary } from 'react-icons/lu';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export const DataMiningLab = () => {
     const { columns, filteredData } = useStore();
@@ -43,9 +42,6 @@ export const DataMiningLab = () => {
         if (!regressionResult) return [];
         const { points, predict } = regressionResult;
         // Add regression line points (start and end)
-        const sortedX = points.map(p => p.x).sort((a, b) => a - b);
-        const minX = sortedX[0];
-        const maxX = sortedX[sortedX.length - 1];
 
         return points.map(p => ({
             x: p.x,
