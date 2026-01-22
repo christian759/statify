@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
 import { useStore } from './store/useStore';
 import { StatisticalCards } from './components/StatisticalCards';
 import { AnalyticalVisualizer } from './components/AnalyticalVisualizer';
 import { VirtualizedTable } from './components/VirtualizedTable';
 import { DataUpload } from './components/DataUpload';
 import { cn } from './utils/cn';
-import { LuSun, LuMoon, LuSearch, LuDatabase, LuActivity, LuTerminal } from 'react-icons/lu';
+import { LuSearch, LuDatabase, LuActivity, LuTerminal } from 'react-icons/lu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ColumnSidebar } from './components/ColumnSidebar';
 import { CorrelationHeatmap } from './components/CorrelationHeatmap';
@@ -14,16 +13,9 @@ import { QualityMetrics } from './components/QualityMetrics';
 import { DataMiningLab } from './components/DataMiningLab';
 
 const App = () => {
-  const { theme, isLoading, filters, setFilters, data, stats, setDataset, activeTab, setActiveTab } = useStore();
+  const { isLoading, filters, setFilters, data, stats, setDataset, activeTab, setActiveTab } = useStore();
   const hasData = data.length > 0;
 
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
 
   const loadSampleData = () => {
     const sample = Array.from({ length: 100 }, (_, i) => ({
@@ -51,10 +43,7 @@ const App = () => {
   }
 
   return (
-    <div className={cn(
-      "min-h-screen transition-all duration-700 bg-background text-foreground selection:bg-primary/30",
-      theme === 'light' ? "light" : "dark"
-    )}>
+    <div className="min-h-screen transition-all duration-700 bg-background text-foreground selection:bg-primary/30 dark">
       {/* Dynamic Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="bg-mesh absolute inset-0 opacity-50" />
@@ -68,14 +57,6 @@ const App = () => {
           <span className="text-xl font-black tracking-tighter">Statify <span className="text-primary">Pro</span></span>
         </div>
 
-        <div className="flex items-center gap-3 pointer-events-auto">
-          <button
-            onClick={() => useStore.getState().setTheme(theme === 'light' ? 'dark' : 'light')}
-            className="p-3 w-12 h-12 rounded-2xl glass-premium flex items-center justify-center transition-all active:scale-95"
-          >
-            {theme === 'light' ? <LuMoon size={20} /> : <LuSun size={20} />}
-          </button>
-        </div>
       </nav>
 
       <AnimatePresence mode="wait">

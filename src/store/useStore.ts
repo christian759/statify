@@ -160,7 +160,6 @@ export const useStore = create<AppState>()(
             insights: [],
             isAnalyzing: false,
             isLoading: false,
-            theme: 'light',
             rowSelection: {},
             activeAnalysisColumn: undefined,
             activeTab: 'analysis',
@@ -208,12 +207,6 @@ export const useStore = create<AppState>()(
                 set({ filters, filteredData });
             },
 
-            setTheme: (theme: 'light' | 'dark') => {
-                set({ theme });
-                if (typeof document !== 'undefined') {
-                    document.documentElement.classList.toggle('dark', theme === 'dark');
-                }
-            },
 
             setRowSelection: (updater: any) => set((state: AppState) => ({
                 rowSelection: typeof updater === 'function' ? updater(state.rowSelection) : updater
@@ -386,7 +379,6 @@ export const useStore = create<AppState>()(
         {
             name: 'statify-storage-v2',
             partialize: (state: any) => ({
-                theme: state.theme,
                 filters: state.filters,
                 tableConfig: state.tableConfig,
                 activeAnalysisColumn: state.activeAnalysisColumn,

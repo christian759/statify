@@ -68,7 +68,6 @@ export interface AppState {
 
     // UI State
     isLoading: boolean;
-    theme: 'light' | 'dark';
     rowSelection: RowSelectionState;
     activeAnalysisColumn?: string;
     activeTab: 'analysis' | 'correlations' | 'data';
@@ -89,7 +88,6 @@ export interface AppState {
 
     setDataset: (data: DataRow[], metadata: { fileName: string; fileSize: number }) => void;
     setFilters: (filters: Partial<FilterState>) => void;
-    setTheme: (theme: 'light' | 'dark') => void;
     setRowSelection: (updater: any) => void;
     setTableConfig: (config: any) => void;
     setActiveColumn: (columnId: string | undefined) => void;

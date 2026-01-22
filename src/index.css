@@ -31,32 +31,7 @@
 
 @layer base {
   :root {
-    /* Scientific Light Mode - Refined Slate */
-    --background: 215 25% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 45%;
-    /* Sharper, deeper blue */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 214 32% 91%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 214 32% 91%;
-    --muted-foreground: 215 16% 40%;
-    --accent: 214 32% 91%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 85%;
-    --input: 214 32% 85%;
-    --ring: 221 83% 45%;
-    --radius: 0.75rem;
-  }
-
-  .dark {
-    /* Scientific Deep Slate & Cobalt */
+    /* Scientific Deep Slate & Cobalt (Dark Mode by default) */
     --background: 222 47% 3%;
     --foreground: 210 40% 98%;
     --card: 222 47% 5%;
@@ -77,6 +52,7 @@
     --border: 222 47% 12%;
     --input: 222 47% 12%;
     --ring: 214 100% 60%;
+    --radius: 0.75rem;
   }
 
   * {
